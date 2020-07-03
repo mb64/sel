@@ -1,0 +1,60 @@
+RESERVED CHARS:
+_: placeholder marker during comparison, increment
+@: extra placeholder
+they're not used for anything permanent
+
+bin := 0|1[01]+
+
+node := bin:bin
+char := [^\]|\n|\\|\u|\a
+builtin := quote
+         | eq?
+         | nil?
+         | if
+         | car
+         | cdr
+         | args
+         | putc
+         | getc
+item := Nnode
+      | Cchar
+      | Bbuiltin
+
+contitem := NEXT bin
+          | CONS bin
+          | DO item
+
+HEAP
+ITEM bin item
+ITEM bin item
+ITEM bin item
+...
+HEAPEND
+ARGS bin
+CONT
+contitem
+contitem
+...
+CONTEND
+CURRENT bin
+INPUT ([^_@\]|\\|\u|\a)*
+[RET id]
+
+MVP:
+just eval'ing Builtins
+order:
+ - putc
+ - car, cdr
+ - quote
+ - args
+ - eval'ing functions
+ - nil?
+ - if
+ - eq?
+ - good assembler
+ - getc
+
+evaluate args
+result in CURRENT
+If builtin: do operation on CURRENT
+else: set ARGS to CURRENT, go on the result

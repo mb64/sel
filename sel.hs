@@ -1,0 +1,110 @@
+-- A haskell implementation of the Sed Lisp execution strategy.
+-- vim:ts=2 sw=2
+
+import qualified Data.IntMap.Strict as M
+import Control.Monad
+import Control.Monad.State
+import Control.Monad.Except
+
+data Builtin = Quote | Car | Cdr | Print | Args deriving (Show, Eq, Ord)
+
+data Item = Node Int Int
+          | String String
+          | Builtin Builtin
+          deriving (Show, Eq, Ord)
+
+data Cont = Tail Int
+          | Cons Int
+          | Do
+          deriving (Show, Eq, Ord)
+
+-- The contents of the Hold space
+data Hold = Hold
+    { getHeap :: M.IntMap Item
+    , getArgs :: Int
+    , getCont :: [Cont]
+    , getCurrent :: Int
+    } deriving (Show, Eq, Ord)
+
+starting :: Hold
+starting = Hold (M.fromList h) 0 [Do] 4
+  where h = [ (4,Node 3 2)
+            , (3,Builtin Print)
+            , (2,Node 1 0)
+            , (1,String "hello")
+            ]
+
+type SelM = StateT Hold (ExceptT String IO)
+
+run :: Builtin -> SelM ()
+run Quote = throwError "can't run quote"
+run Car = do
+  Hold heap args cont curr <- get
+  let Just (Node x _) = M.lookup curr heap
+  case M.lookup x heap of
+    Just (Node hd _) -> put $ Hold heap args cont hd
+    _ -> throwError "not a node"
+run Cdr = do
+  Hold heap args cont curr <- get
+  let Just (Node x _) = M.lookup curr heap
+  case M.lookup x heap of
+    Just (Node _ tl) -> put $ Hold heap args cont tl
+    _ -> throwError "not a node"
+run Print = do
+  Hold heap args cont curr <- get
+  let Just (Node x _) = M.lookup curr heap
+  case M.lookup x heap of
+    Just (String s) -> do
+      liftIO $ putStrLn s
+      put $ Hold heap args cont 0 -- TODO should it return nil?
+    _ -> throwError "not a string"
+run Args = StateT $ \(Hold heap args cont _) -> pure $ ((),Hold heap args cont args)
+
+step :: SelM ()
+step = do
+  hold <- get
+  case hold of
+    Hold _ _ [] _ -> throwError "quit"
+    Hold heap args (Do:cont) curr -> case M.lookup curr heap of
+      Just (Node hd tl) -> case M.lookup hd heap of
+        Just (Builtin b) -> do
+          put $ Hold heap args cont tl
+          run b
+        Just (Node _ _) -> do
+          put $ Hold heap tl cont hd
+          eval
+        _ -> throwError "do: must be a builtin or a cons cell"
+      _ -> throwError "should be a node"
+    Hold heap args (Tail 0:cont) curr -> put $ Hold heap args (Cons curr:cont) 0
+    Hold heap args (Tail val:cont) curr -> case M.lookup val heap of
+      Just (Node hd tl) -> do
+        put $ Hold heap args (Tail tl:Cons curr:cont) hd
+        eval
+      _ -> throwError "should be a node"
+    Hold heap args (Cons val:cont) curr -> do
+      let newNode = 1 + fst (M.findMax heap)
+      put $ Hold (M.insert newNode (Node val curr) heap) args cont newNode
+
+eval :: SelM ()
+eval = do
+  Hold heap args cont curr <- get
+  case M.lookup curr heap of
+    Just (Node hd tl) -> do
+      if M.lookup hd heap == Just (Builtin Quote)
+      then put $ Hold heap args cont tl
+      else do
+        put $ Hold heap args (Tail tl:Do:cont) hd
+        eval
+    _ -> pure ()
+
+sel :: Hold -> IO String
+sel st = do
+  answer <- runExceptT $ evalStateT (forever step) st
+  case answer of
+    Right _ -> error "unreachable"
+    Left s -> pure s
+
+main :: IO ()
+main = do
+  msg <- sel starting
+  putStrLn $ "Result: " ++ msg
