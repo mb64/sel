@@ -16,18 +16,19 @@ data Item = Node Int Int
 data Cont = Tail Int
           | Cons Int
           | Do
+          | PopArgs
           deriving (Show, Eq, Ord)
 
 -- The contents of the Hold space
 data Hold = Hold
     { getHeap :: M.IntMap Item
-    , getArgs :: Int
+    , getArgs :: [Int]
     , getCont :: [Cont]
     , getCurrent :: Int
     } deriving (Show, Eq, Ord)
 
 starting :: Hold
-starting = Hold (M.fromList h) 0 [Do] 4
+starting = Hold (M.fromList h) [] [Do] 4
   where h = [ (4,Node 3 2)
             , (3,Builtin Print)
             , (2,Node 1 0)
@@ -58,7 +59,7 @@ run Print = do
       liftIO $ putStrLn s
       put $ Hold heap args cont 0 -- TODO should it return nil?
     _ -> throwError "not a string"
-run Args = StateT $ \(Hold heap args cont _) -> pure $ ((),Hold heap args cont args)
+run Args = StateT $ \(Hold heap (a:as) cont _) -> pure $ ((),Hold heap (a:as) cont a)
 
 step :: SelM ()
 step = do
@@ -71,7 +72,7 @@ step = do
           put $ Hold heap args cont tl
           run b
         Just (Node _ _) -> do
-          put $ Hold heap tl cont hd
+          put $ Hold heap (tl:args) (PopArgs:cont) hd
           eval
         _ -> throwError "do: must be a builtin or a cons cell"
       _ -> throwError "should be a node"
@@ -84,6 +85,7 @@ step = do
     Hold heap args (Cons val:cont) curr -> do
       let newNode = 1 + fst (M.findMax heap)
       put $ Hold (M.insert newNode (Node val curr) heap) args cont newNode
+    Hold heap (a:as) (PopArgs:cont) curr -> put $ Hold heap as cont curr
 
 eval :: SelM ()
 eval = do
