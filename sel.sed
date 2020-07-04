@@ -1,4 +1,4 @@
-#!/usr/bin/sed -Ef
+#!/usr/bin/sed -nEf
 
 x
 s/^$/CURRENT 4\
@@ -141,12 +141,14 @@ b eval
     :dummy-lbl-5
     s/^Bprint\n//
     T error
-    # switch to hold space
+    # switch to hold space and print it
     h
     s/^CURRENT ([0-9]+)\n.*ITEM \1 L([0-9]+):/\2\n&/
     T error
     s/^([0-9]+)\n.*ITEM \1 S([^\n]*)\n.*$/\2/p
     T error
+    # switch back and return
+    x
     b next-cont
 }
 b next-cont
