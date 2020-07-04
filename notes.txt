@@ -34,10 +34,10 @@ num
 ...
 ARGEND
 HEAP
+ITEM num item
+ITEM num item
+ITEM num item
 ...
-ITEM num item
-ITEM num item
-ITEM num item
 HEAPEND
 INPUT ([^_@\]|\\|\u|\a)*
 

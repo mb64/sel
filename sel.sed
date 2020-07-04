@@ -7,17 +7,17 @@ CONTEND\
 ARGS\
 ARGEND\
 HEAP\
-ITEM 1 Bquote\
-ITEM 2 Bprint\
-ITEM 3 Sfrom sed lisp\
-ITEM 4 L3:0\
-ITEM 5 L2:4\
-ITEM 6 L5:0\
-ITEM 7 Sa warm greeting\
-ITEM 8 L7:0\
-ITEM 9 L2:8\
-ITEM 10 L9:6\
 ITEM 11 L0:10\
+ITEM 10 L9:6\
+ITEM 9 L2:8\
+ITEM 8 L7:0\
+ITEM 7 Sa warm greeting\
+ITEM 6 L5:0\
+ITEM 5 L2:4\
+ITEM 4 L3:0\
+ITEM 3 Sfrom sed lisp\
+ITEM 2 Bprint\
+ITEM 1 Bquote\
 HEAPEND\
 INPUT:/
 G
@@ -72,7 +72,7 @@ b eval
 
 /\nCONT\nCONS/{
     # push heap NEW Lvalue:current, drop CONS value, and goto new
-    s/^(CURRENT ([0-9]+)\nCONT\nCONS ([0-9]+)\n.*\n)HEAPEND/\1NEW L\3:\2\nHEAPEND/
+    s/^(CURRENT ([0-9]+)\nCONT\nCONS ([0-9]+)\n.*\n)HEAP\n/\1HEAP\nNEW L\3:\2\n/
     s/\nCONT\nCONS [0-9]+\n/\nCONT\n/
     b new
 }
@@ -98,13 +98,12 @@ b main-loop
 # Try to find it interned already somewhere
 t dummy-lbl-2
 :dummy-lbl-2
-# FIXME: this doesn't work for some reason...
-s/^CURRENT [0-9]+(\n.*\nITEM ([0-9]+) ([^\n]+)$.*\n)NEW \3\n/CURRENT \2\3/m
+s/^CURRENT [0-9]+(\n.*\n)NEW ([^\n]+)\n((.*\n)?ITEM ([0-9]+) \2\n)/CURRENT \5\1\3/
 t next-cont
 # It's not a copy of some other thing, gotta actually make a new id
 :legit-new
 # copy over the old id and increment it
-s/^CURRENT [0-9]+(\n.*\nITEM ([0-9]+) [^\n]+\n)NEW /CURRENT \2_\1ITEM \2_ /
+s/^CURRENT [0-9]+(\n.*\n)NEW ([^\n]+\nITEM ([0-9]+) )/CURRENT \3_\1ITEM \3_ \2/
 t increment-loop
 :increment-loop
 s/\b_/1/g
@@ -145,20 +144,21 @@ b eval
 ###### builtins ######
 :do-builtin
 # It should look like ^B...\nCURRENT [0-9]+\n
-/^Bprint/{
+
+/^Bprint\n/{
     # print the first arg, a string
-    t dummy-lbl-5
-    :dummy-lbl-5
     s/^Bprint\n//
-    T error
     # switch to hold space and print it
     h
+    t dummy-lbl-5
+    :dummy-lbl-5
     s/^CURRENT ([0-9]+)\n.*ITEM \1 L([0-9]+):/\2\n&/
     T error
     s/^([0-9]+)\n.*ITEM \1 S([^\n]*)\n.*$/\2/p
     T error
-    # switch back and return
+    # switch back and return nil
     x
+    s/^CURRENT [0-9]+\n/CURRENT 0\n/
     b next-cont
 }
 b next-cont
@@ -211,4 +211,4 @@ z
 #
 # ARGS grows UP
 # CONT grows UP
-# HEAP grows DOWN
+# HEAP grows UP
