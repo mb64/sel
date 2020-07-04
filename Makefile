@@ -7,4 +7,7 @@ dbg.txt: sel.sed
 debug: dbg.txt
 	nvim -O dbg.txt sel.sed
 
-.PHONY: run debug
+hs:
+	runhaskell sel.hs
+
+.PHONY: run debug hs

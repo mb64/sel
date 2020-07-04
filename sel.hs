@@ -28,20 +28,17 @@ data Hold = Hold
     } deriving (Show, Eq, Ord)
 
 starting :: Hold
-starting = Hold (M.fromList h) [] [] 13
-  where h = [ (1, Builtin Quote)
-            , (2, Builtin Print)
-            , (3, String "a warm greeting")
-            , (4, Link 3 0)
-            , (5, Link 2 4)
-            , (6, Link 5 0)
-            , (7, String "from sed lisp")
-            , (8, Link 7 0)
-            , (9, Link 2 8)
-            , (10, Link 9 6)
-            , (11, Link 0 0)
-            , (12, Link 1 11)
-            , (13, Link 12 10)
+starting = Hold (M.fromList h) [] [] 10
+  where h = [ (10, Link 0 9)
+            , (9, Link 8 5)
+            , (8, Link 1 7)
+            , (7, Link 6 0)
+            , (6, String "a warm greeting")
+            , (5, Link 4 0)
+            , (4, Link 1 3)
+            , (3, Link 2 0)
+            , (2, String "from sed lisp")
+            , (1, Builtin Print)
             ]
 
 type SelM = StateT Hold (ExceptT String IO)
@@ -80,10 +77,9 @@ step = do
         Just (Builtin b) -> do
           put $ Hold heap args cont tl
           run b
-        Just (Link _ _) -> do
+        _ -> do
           put $ Hold heap (tl:args) (PopArgs:cont) hd
           eval
-        _ -> throwError "do: must be a builtin or a cons cell"
       _ -> throwError "should be a node"
     Hold heap args (Tail 0:cont) curr -> put $ Hold heap args (Cons curr:cont) 0
     Hold heap args (Tail val:cont) curr -> case M.lookup val heap of

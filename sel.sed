@@ -1,23 +1,22 @@
 #!/usr/bin/sed -nEf
 
 x
-s/^$/CURRENT 11\
+s/^$/CURRENT 10\
 CONT\
 CONTEND\
 ARGS\
 ARGEND\
 HEAP\
-ITEM 11 L0:10\
-ITEM 10 L9:6\
-ITEM 9 L2:8\
-ITEM 8 L7:0\
-ITEM 7 Sa warm greeting\
-ITEM 6 L5:0\
-ITEM 5 L2:4\
-ITEM 4 L3:0\
-ITEM 3 Sfrom sed lisp\
-ITEM 2 Bprint\
-ITEM 1 Bquote\
+ITEM 10 L0:9\
+ITEM 9 L8:5\
+ITEM 8 L1:7\
+ITEM 7 L6:0\
+ITEM 6 Sa warm greeting\
+ITEM 5 L4:0\
+ITEM 4 L1:3\
+ITEM 3 L2:0\
+ITEM 2 Sfrom sed lisp\
+ITEM 1 Bprint\
 HEAPEND\
 INPUT:/
 G
