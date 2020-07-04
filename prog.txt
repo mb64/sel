@@ -1,0 +1,3 @@
+first: car
+second: (quote (car (cdr (car (args)))))
+map f l: ((if (nil? (second (args))) (quote nil) (quote (cons ((car (args)) (car (second (args)))) (map (car (args)) (cdr (second (args))))))) (car (args)) (second (args)))

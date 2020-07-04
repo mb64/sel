@@ -1,60 +1,63 @@
 RESERVED CHARS:
-_: placeholder marker during comparison, increment
+_: placeholder marker during increment
 @: extra placeholder
 they're not used for anything permanent
 
-bin := 0|1[01]+
+num := 0|[1-9][0-9]*
 
-node := bin:bin
 char := [^\]|\n|\\|\u|\a
 builtin := quote
          | eq?
-         | nil?
          | if
-         | car
-         | cdr
+         | c[ad]+r
          | args
-         | putc
-         | getc
-item := Nnode
-      | Cchar
+         | c[ad]+r-args
+         | print
+         | input
+item := Lnum:num
+      | Schar*
       | Bbuiltin
 
-contitem := NEXT bin
-          | CONS bin
+contitem := NEXT num
+          | CONS num
           | DO item
 
-HEAP
-ITEM bin item
-ITEM bin item
-ITEM bin item
-...
-HEAPEND
-ARGS bin
+CURRENT num
 CONT
 contitem
 contitem
 ...
 CONTEND
-CURRENT bin
+ARGS
+num
+num
+...
+ARGEND
+HEAP
+...
+ITEM num item
+ITEM num item
+ITEM num item
+HEAPEND
 INPUT ([^_@\]|\\|\u|\a)*
-[RET id]
 
-MVP:
-just eval'ing Builtins
-order:
- - putc
- - car, cdr
+A function is a list.
+To call a function:
+ - push the args to ARGS
+ - push a POPARGS continuation
+ - evaluate the function
+
+idea: infinite builtins: c[ad]+r
+
+order of builtins:
  - quote
+ - print
  - args
- - eval'ing functions
- - nil?
+ - car
+ - cdr
+ - cons
  - if
  - eq?
- - good assembler
- - getc
-
-evaluate args
-result in CURRENT
-If builtin: do operation on CURRENT
-else: set ARGS to CURRENT, go on the result
+ - c[ad]+r
+ - c[ad]+r-args
+ - gc
