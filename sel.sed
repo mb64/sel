@@ -1,7 +1,7 @@
 #!/usr/bin/sed -Ef
 
 x
-s/^$/CURRENT 100\
+s/^$/CURRENT 4\
 CONT\
 DO\
 CONTEND\
@@ -11,10 +11,10 @@ HEAP\
 ITEM 1 Shello\
 ITEM 2 L1:0\
 ITEM 3 Bprint\
-ITEM 4 L11:10\
+ITEM 4 L3:2\
 HEAPEND\
 INPUT:/
-H
+G
 s/INPUT:\n/INPUT /
 s/_/\\u/g
 s/@/\\a/g
@@ -59,7 +59,7 @@ s/@/\\a/g
     :dummy-lbl-1
     s/^CURRENT [0-9]+\nCONT\nTAIL ([0-9]+)(\n.*ITEM \1 L([0-9]+):([0-9]+)\n)/CURRENT \3\nCONT\nTAIL \4\2/
     T error
-    b done-cont
+    b next-cont
 }
 
 /\nCONT\nCONS/{
@@ -90,7 +90,7 @@ b main-loop
 t dummy-lbl-2
 :dummy-lbl-2
 s/\nNEW ([^\n]+)$(.*\nITEM ([0-9]+) \1\n.*\nCURRENT )[0-9]+\n/\2\1\n/m
-t main-loop
+t next-cont
 # It's not a copy of some other thing, gotta actually make a new id
 :legit-new
 # copy over the old id and increment it
@@ -107,7 +107,7 @@ s/3_/4/
 s/2_/3/
 s/1_/2/
 s/0_/1/
-t main-loop
+t next-cont
 s/9_/_0/
 t dummy-lbl-3
 :dummy-lbl-3
@@ -120,11 +120,11 @@ t dummy-lbl-4
 # Prepend ^LINK head tail\n
 s/^(CURRENT ([0-9])+\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/LINK \3 \4\n\1/
 # if it's not a cons cell, do nothing
-T main-loop
+T next-cont
 /^HEAD ([0-9]+)\n.*\nITEM \1 Bquote\n/{
     # Quote: set current to tail, cleanup, and return
     s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+\n/CURRENT \1\n/
-    b main-loop
+    b next-cont
 }
 # push cont TAIL current.tail\nDO
 # set current to current.head
@@ -135,8 +135,21 @@ b eval
 ###### builtins ######
 :do-builtin
 # It should look like ^B...\nCURRENT [0-9]+\n
-# TODO
-b main-loop
+/^Bprint/{
+    # print the first arg, a string
+    t dummy-lbl-5
+    :dummy-lbl-5
+    s/^Bprint\n//
+    T error
+    # switch to hold space
+    h
+    s/^CURRENT ([0-9]+)\n.*ITEM \1 L([0-9]+):/\2\n&/
+    T error
+    s/^([0-9]+)\n.*ITEM \1 S([^\n]*)\n.*$/\2/p
+    T error
+    b next-cont
+}
+b next-cont
 
 :error
 s/.*/error/
