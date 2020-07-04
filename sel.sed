@@ -26,19 +26,19 @@ s/@/\\a/g
 /\nCONT\nDO/{
     # drop DO
     s/\nCONT\nDO\n/\nCONT\n/
-    # deref current, push to top of pat space ^HEAD num\nTAIL num\n
+    # prepend ^LINK head tail\n
     t dummy-lbl-0
     :dummy-lbl-0
-    s/^(CURRENT ([0-9]+)\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/\1\nHEAD \3\nTAIL \4\n/
+    s/^(CURRENT ([0-9]+)\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/LINK \3 \4\n\1/
     T error
     # if current.head is a builtin:
-    #   change to ^B...\nCURRENT num\n
+    #   change to ^B...\nCURRENT tail\n
     #   do builtin
-    s/^HEAD ([0-9]+)\nTAIL ([0-9]+)\nCURRENT [0-9]+\n(.*\nITEM \1 (B[^\n]+)\n)/\4\nCURRENT \2\n\3/
+    s/^LINK ([0-9]+) ([0-9]+)\nCURRENT [0-9]+\n(.*\nITEM \1 (B[^\n]+)\n)/\4\nCURRENT \2\n\3/
     t do-builtin
     # else:
-    #   push TAIL to ARGS, set current to HEAD
-    s/^HEAD ([0-9]+)\nTAIL ([0-9])+\nCURRENT [0-9]+(\n.*\nARGS\n)/CURRENT \1\3\2\n/
+    #   push tail to ARGS, set current to head
+    s/^LINK ([0-9]+) ([0-9]+)\nCURRENT [0-9]+(\n.*\nARGS\n)/CURRENT \1\3\2\n/
     #   push POPARGS continuation
     s/\nCONT\n/\nCONT\nPOPARGS\n/
     #   goto eval
@@ -115,12 +115,26 @@ b increment-loop
 
 ###### eval ######
 :eval
-# TODO
-b main-loop
+t dummy-lbl-4
+:dummy-lbl-4
+# Prepend ^LINK head tail\n
+s/^(CURRENT ([0-9])+\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/LINK \3 \4\n\1/
+# if it's not a cons cell, do nothing
+T main-loop
+/^HEAD ([0-9]+)\n.*\nITEM \1 Bquote\n/{
+    # Quote: set current to tail, cleanup, and return
+    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+\n/CURRENT \1\n/
+    b main-loop
+}
+# push cont TAIL current.tail\nDO
+# set current to current.head
+s/^LINK ([0-9]+) ([0-9]+)\nCURRENT [0-9]+\nCONT\n/CURRENT \1\nCONT\nTAIL \2\nDO\n/
+# keep eval-ing
+b eval
 
 ###### builtins ######
 :do-builtin
-# It should look like ^BUILTIN B...\nCURRENT [0-9]+\n
+# It should look like ^B...\nCURRENT [0-9]+\n
 # TODO
 b main-loop
 
@@ -132,7 +146,7 @@ p
 z
 
 
-# New plan
+# Plan
 # How continuations work:
 #   DO:
 #       if current.head is a builtin:
@@ -169,8 +183,6 @@ z
 #           goto eval current
 #   else current is not a cons cell:
 #       do nothing
-#
-#
 #
 # ARGS grows UP
 # CONT grows UP
