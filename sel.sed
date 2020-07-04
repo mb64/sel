@@ -9,11 +9,11 @@ ARGEND\
 HEAP\
 ITEM 1 Bquote\
 ITEM 2 Bprint\
-ITEM 3 Sa warm greeting\
+ITEM 3 Sfrom sed lisp\
 ITEM 4 L3:0\
 ITEM 5 L2:4\
 ITEM 6 L5:0\
-ITEM 7 Sfrom sed lisp\
+ITEM 7 Sa warm greeting\
 ITEM 8 L7:0\
 ITEM 9 L2:8\
 ITEM 10 L9:6\
