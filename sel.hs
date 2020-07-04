@@ -8,7 +8,7 @@ import Control.Monad.Except
 
 data Builtin = Quote | Car | Cdr | Print | Args deriving (Show, Eq, Ord)
 
-data Item = Node Int Int
+data Item = Link Int Int
           | String String
           | Builtin Builtin
           deriving (Show, Eq, Ord)
@@ -28,11 +28,20 @@ data Hold = Hold
     } deriving (Show, Eq, Ord)
 
 starting :: Hold
-starting = Hold (M.fromList h) [] [Do] 4
-  where h = [ (4,Node 3 2)
-            , (3,Builtin Print)
-            , (2,Node 1 0)
-            , (1,String "hello")
+starting = Hold (M.fromList h) [] [] 13
+  where h = [ (1, Builtin Quote)
+            , (2, Builtin Print)
+            , (3, String "a warm greeting")
+            , (4, Link 3 0)
+            , (5, Link 2 4)
+            , (6, Link 5 0)
+            , (7, String "from sed lisp")
+            , (8, Link 7 0)
+            , (9, Link 2 8)
+            , (10, Link 9 6)
+            , (11, Link 0 0)
+            , (12, Link 1 11)
+            , (13, Link 12 10)
             ]
 
 type SelM = StateT Hold (ExceptT String IO)
@@ -41,19 +50,19 @@ run :: Builtin -> SelM ()
 run Quote = throwError "can't run quote"
 run Car = do
   Hold heap args cont curr <- get
-  let Just (Node x _) = M.lookup curr heap
+  let Just (Link x _) = M.lookup curr heap
   case M.lookup x heap of
-    Just (Node hd _) -> put $ Hold heap args cont hd
+    Just (Link hd _) -> put $ Hold heap args cont hd
     _ -> throwError "not a node"
 run Cdr = do
   Hold heap args cont curr <- get
-  let Just (Node x _) = M.lookup curr heap
+  let Just (Link x _) = M.lookup curr heap
   case M.lookup x heap of
-    Just (Node _ tl) -> put $ Hold heap args cont tl
+    Just (Link _ tl) -> put $ Hold heap args cont tl
     _ -> throwError "not a node"
 run Print = do
   Hold heap args cont curr <- get
-  let Just (Node x _) = M.lookup curr heap
+  let Just (Link x _) = M.lookup curr heap
   case M.lookup x heap of
     Just (String s) -> do
       liftIO $ putStrLn s
@@ -67,31 +76,31 @@ step = do
   case hold of
     Hold _ _ [] _ -> throwError "quit"
     Hold heap args (Do:cont) curr -> case M.lookup curr heap of
-      Just (Node hd tl) -> case M.lookup hd heap of
+      Just (Link hd tl) -> case M.lookup hd heap of
         Just (Builtin b) -> do
           put $ Hold heap args cont tl
           run b
-        Just (Node _ _) -> do
+        Just (Link _ _) -> do
           put $ Hold heap (tl:args) (PopArgs:cont) hd
           eval
         _ -> throwError "do: must be a builtin or a cons cell"
       _ -> throwError "should be a node"
     Hold heap args (Tail 0:cont) curr -> put $ Hold heap args (Cons curr:cont) 0
     Hold heap args (Tail val:cont) curr -> case M.lookup val heap of
-      Just (Node hd tl) -> do
+      Just (Link hd tl) -> do
         put $ Hold heap args (Tail tl:Cons curr:cont) hd
         eval
       _ -> throwError "should be a node"
     Hold heap args (Cons val:cont) curr -> do
-      let newNode = 1 + fst (M.findMax heap)
-      put $ Hold (M.insert newNode (Node val curr) heap) args cont newNode
+      let newLink = 1 + fst (M.findMax heap)
+      put $ Hold (M.insert newLink (Link val curr) heap) args cont newLink
     Hold heap (a:as) (PopArgs:cont) curr -> put $ Hold heap as cont curr
 
 eval :: SelM ()
 eval = do
   Hold heap args cont curr <- get
   case M.lookup curr heap of
-    Just (Node hd tl) -> do
+    Just (Link hd tl) -> do
       if M.lookup hd heap == Just (Builtin Quote)
       then put $ Hold heap args cont tl
       else do
@@ -101,7 +110,7 @@ eval = do
 
 sel :: Hold -> IO String
 sel st = do
-  answer <- runExceptT $ evalStateT (forever step) st
+  answer <- runExceptT $ evalStateT (eval >> forever step) st
   case answer of
     Right _ -> error "unreachable"
     Left s -> pure s

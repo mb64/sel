@@ -1,23 +1,33 @@
 #!/usr/bin/sed -nEf
 
 x
-s/^$/CURRENT 4\
+s/^$/CURRENT 13\
 CONT\
-DO\
 CONTEND\
 ARGS\
 ARGEND\
 HEAP\
-ITEM 1 Shello\
-ITEM 2 L1:0\
-ITEM 3 Bprint\
-ITEM 4 L3:2\
+ITEM 1 Bquote\
+ITEM 2 Bprint\
+ITEM 3 Sa warm greeting\
+ITEM 4 L3:0\
+ITEM 5 L2:4\
+ITEM 6 L5:0\
+ITEM 7 Sfrom sed lisp\
+ITEM 8 L7:0\
+ITEM 9 L2:8\
+ITEM 10 L9:6\
+ITEM 11 L0:0\
+ITEM 12 L1:11\
+ITEM 13 L12:10\
 HEAPEND\
 INPUT:/
 G
 s/INPUT:\n/INPUT /
 s/_/\\u/g
 s/@/\\a/g
+
+b eval
 
 :main-loop
 
@@ -29,7 +39,7 @@ s/@/\\a/g
     # prepend ^LINK head tail\n
     t dummy-lbl-0
     :dummy-lbl-0
-    s/^(CURRENT ([0-9]+)\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/LINK \3 \4\n\1/
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
     T error
     # if current.head is a builtin:
     #   change to ^B...\nCURRENT tail\n
@@ -47,7 +57,7 @@ s/@/\\a/g
 
 /\nCONT\nTAIL/{
     # push CONS current behind TAIL value
-    s/^(CURRENT ([0-9]+)\nCONT\nTAIL [0-9]+\n)/\1CONS \2/
+    s/^CURRENT ([0-9]+)\nCONT\nTAIL [0-9]+\n/&CONS \1\n/
     # if value is nil:
     /\nCONT\nTAIL 0\n/{
         # set current to 0
@@ -59,12 +69,13 @@ s/@/\\a/g
     :dummy-lbl-1
     s/^CURRENT [0-9]+\nCONT\nTAIL ([0-9]+)(\n.*ITEM \1 L([0-9]+):([0-9]+)\n)/CURRENT \3\nCONT\nTAIL \4\2/
     T error
-    b next-cont
+    b eval
 }
 
 /\nCONT\nCONS/{
-    # push heap NEW Lvalue:current and goto new
+    # push heap NEW Lvalue:current, drop CONS value, and goto new
     s/^(CURRENT ([0-9]+)\nCONT\nCONS ([0-9]+)\n.*\n)HEAPEND/\1NEW L\3:\2\nHEAPEND/
+    s/\nCONT\nCONS [0-9]+\n/\nCONT\n/
     b new
 }
 
@@ -89,26 +100,27 @@ b main-loop
 # Try to find it interned already somewhere
 t dummy-lbl-2
 :dummy-lbl-2
-s/\nNEW ([^\n]+)$(.*\nITEM ([0-9]+) \1\n.*\nCURRENT )[0-9]+\n/\2\1\n/m
+# FIXME: this doesn't work for some reason...
+s/^CURRENT [0-9]+(\n.*\nITEM ([0-9]+) ([^\n]+)$.*\n)NEW \3\n/CURRENT \2\3/m
 t next-cont
 # It's not a copy of some other thing, gotta actually make a new id
 :legit-new
 # copy over the old id and increment it
-s/(\nITEM ([0-9]+) [^\n]+\n)NEW /\1ITEM \2_ /
+s/^CURRENT [0-9]+(\n.*\nITEM ([0-9]+) [^\n]+\n)NEW /CURRENT \2_\1ITEM \2_ /
 t increment-loop
 :increment-loop
-s/\b_/1/
-s/8_/9/
-s/7_/8/
-s/6_/7/
-s/5_/6/
-s/4_/5/
-s/3_/4/
-s/2_/3/
-s/1_/2/
-s/0_/1/
+s/\b_/1/g
+s/8_/9/g
+s/7_/8/g
+s/6_/7/g
+s/5_/6/g
+s/4_/5/g
+s/3_/4/g
+s/2_/3/g
+s/1_/2/g
+s/0_/1/g
 t next-cont
-s/9_/_0/
+s/9_/_0/g
 t dummy-lbl-3
 :dummy-lbl-3
 b increment-loop
@@ -118,10 +130,10 @@ b increment-loop
 t dummy-lbl-4
 :dummy-lbl-4
 # Prepend ^LINK head tail\n
-s/^(CURRENT ([0-9])+\n.*\nITEM \2 L([0-9]+):([0-9]+)\n)/LINK \3 \4\n\1/
+s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
 # if it's not a cons cell, do nothing
 T next-cont
-/^HEAD ([0-9]+)\n.*\nITEM \1 Bquote\n/{
+/^LINK ([0-9]+) .*\nITEM \1 Bquote\n/{
     # Quote: set current to tail, cleanup, and return
     s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+\n/CURRENT \1\n/
     b next-cont

@@ -1,3 +1,24 @@
 first: car
 second: (quote (car (cdr (car (args)))))
 map f l: ((if (nil? (second (args))) (quote nil) (quote (cons ((car (args)) (car (second (args)))) (map (car (args)) (cdr (second (args))))))) (car (args)) (second (args)))
+
+do: (quote nil)
+
+
+Code to run: (do (print "a warm greeting") (print "from sed lisp"))
+Encoding:
+
+CURRENT 13
+ITEM 1 Bquote
+ITEM 2 Bprint
+ITEM 3 Sa warm greeting
+ITEM 4 L3:0
+ITEM 5 L2:4
+ITEM 6 L5:0
+ITEM 7 Sfrom sed lisp
+ITEM 8 L7:0
+ITEM 9 L2:8
+ITEM 10 L9:6
+ITEM 11 L0:0
+ITEM 12 L1:11
+ITEM 13 L12:10
