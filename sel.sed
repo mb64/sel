@@ -142,7 +142,6 @@ b eval
 
 ###### builtins ######
 :do-builtin
-# It should look like ^B...\nCURRENT [0-9]+\n
 
 /^Bprint\n/{
     # print the first arg, a string
@@ -160,7 +159,44 @@ b eval
     s/^CURRENT [0-9]+\n/CURRENT 0\n/
     b next-cont
 }
-b next-cont
+
+/^Bargs\n/ {
+    # set current to args
+    s/^Bargs\n//
+    s/^CURRENT [0-9]+(\n.*\nARGS\n([0-9]+)\n)/CURRENT \2\1/
+    b next-cont
+}
+
+/^Bc[ad]+r-args\n/ {
+    # set current to args, and then do c[ad]+r
+    s/-args\nCURRENT [0-9]+(\n.*\nARGS\n([0-9]+)\n)/\nCURRENT \2\1/
+    # Fallthrough
+}
+
+/^Bc[ad]+r\n/ {
+    s/^Bc([ad]+)r\n/\1a\n/
+    t c[ad]+r-loop
+    :c[ad]+r-loop
+    s/^\n//
+    t next-cont
+    /^[ad]*a\n/ {
+        # set current to (car current)
+        s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+        T error
+        # pop the last a
+        s/^([ad]*)a\n/\1\n/
+        b c[ad]+r-loop
+    }
+    # set current to (cdr current)
+    s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/CURRENT \3\2/
+    T error
+    # pop the last d
+    s/^([ad]*)d\n/\1\n/
+    b c[ad]+r-loop
+}
+
+# Not a builtin
+b error
 
 :error
 s/.*/error/

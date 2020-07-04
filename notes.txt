@@ -49,15 +49,13 @@ To call a function:
 
 idea: infinite builtins: c[ad]+r
 
-order of builtins:
- - quote
- - print
- - args
- - car
- - cdr
- - cons
- - if
- - eq?
- - c[ad]+r
- - c[ad]+r-args
- - gc
+builtins:
+ [X] quote
+ [X] print
+ [X] args
+ [X] c[ad]+r
+ [X] c[ad]+r-args
+ [ ] cons
+ [ ] if
+ [ ] eq?
+ [ ] collect
