@@ -1,7 +1,7 @@
 #!/usr/bin/sed -nEf
 
 x
-s/^$/CURRENT 13\
+s/^$/CURRENT 11\
 CONT\
 CONTEND\
 ARGS\
@@ -17,9 +17,7 @@ ITEM 7 Sa warm greeting\
 ITEM 8 L7:0\
 ITEM 9 L2:8\
 ITEM 10 L9:6\
-ITEM 11 L0:0\
-ITEM 12 L1:11\
-ITEM 13 L12:10\
+ITEM 11 L0:10\
 HEAPEND\
 INPUT:/
 G
