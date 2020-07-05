@@ -1,3 +1,4 @@
+; vim:ft=lisp
 ; Comments are ;
 
 ; Define values with val
