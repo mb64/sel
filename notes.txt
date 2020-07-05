@@ -89,7 +89,7 @@ How continuations work:
 How eval current works:
   if current is a cons cell:
       if current.head is Bquote:
-          set current to current.tail
+          set current to current.tail.head
       else:
           push DO
           push TAIL current.tail

@@ -7,6 +7,7 @@ builtin print
 builtin if
 builtin args
 builtin caar-args
+builtin cadr-args
 builtin caadar-args
 builtin cdadar-args
 
@@ -15,7 +16,7 @@ val nil ()
 func list (args)
 
 func foreach (
-    (if (args)
+    (if (cadr-args)
         (quote (nil
             ((caar-args) (caadar-args))
             (foreach (caar-args) (cdadar-args))

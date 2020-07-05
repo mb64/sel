@@ -104,8 +104,11 @@ s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
 # if it's not a cons cell, do nothing
 T next-cont
 /^LINK ([0-9]+) .*\nITEM \1 Bquote\n/{
-    # Quote: set current to tail, cleanup, and return
+    # Quote: set current to tail.head, cleanup, and return
     s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+\n/CURRENT \1\n/
+    T error
+    s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+    T error
     b next-cont
 }
 # push cont TAIL current.tail\nDO
