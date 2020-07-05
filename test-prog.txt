@@ -2,11 +2,33 @@ ITEM 1 Bprint
 START main
 PROGRAM
 
+builtin quote
 builtin print
+builtin if
+builtin args
+builtin caar-args
+builtin caadar-args
+builtin cdadar-args
+
 val nil ()
-val greeting "a warm greeting"
-val main (nil
-    (print greeting)
-    (print "I say, \"hello!\"")
-    (print "- from sed lisp")
+
+func list (args)
+
+func foreach (
+    (if (args)
+        (quote (nil
+            ((caar-args) (caadar-args))
+            (foreach (caar-args) (cdadar-args))
+        ))
+        nil
+    )
+    (args)
+)
+
+val main (foreach print
+    (list
+        "look at this"
+        "It parses and executes"
+        "Using if, c[ad]+r, and recursion"
+    )
 )

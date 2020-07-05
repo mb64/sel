@@ -10,7 +10,7 @@ sel.sed: parser.sed runner.sed
 	chmod a+x sel.sed
 
 debug: dbg.txt
-	nvim -O dbg.txt sel.sed
+	nvim -O dbg.txt runner.sed
 
 hs:
 	runhaskell sel.hs

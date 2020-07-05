@@ -144,29 +144,51 @@ b eval
 /^Bc[ad]+r-args\n/ {
     # set current to args, and then do c[ad]+r
     s/-args\nCURRENT [0-9]+(\n.*\nARGS\n([0-9]+)\n)/\nCURRENT \2\1/
-    # Fallthrough
+    s/^Bc([ad]+)r\n/\1\n/
+    b c[ad]+r-loop
 }
 
 /^Bc[ad]+r\n/ {
     s/^Bc([ad]+)r\n/\1a\n/
-    t c[ad]+r-loop
     :c[ad]+r-loop
+    t dummy-lbl-6
+    :dummy-lbl-6
     s/^\n//
     t next-cont
     /^[ad]*a\n/ {
-        # set current to (car current)
-        s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+        # set current to (car current) and pop a
+        s/a\nCURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/\nCURRENT \3\2/
         T error
-        # pop the last a
-        s/^([ad]*)a\n/\1\n/
         b c[ad]+r-loop
     }
-    # set current to (cdr current)
-    s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/CURRENT \3\2/
+    # set current to (cdr current) and pop d
+    s/d\nCURRENT ([0-9]+)(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/\nCURRENT \3\2/
     T error
-    # pop the last d
-    s/^([ad]*)d\n/\1\n/
     b c[ad]+r-loop
+}
+
+/^Bif\n/ {
+    s/^Bif\n//
+
+    # Prepend LINK head tail
+    t dummy-lbl-7
+    :dummy-lbl-7
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    T error
+    /^LINK 0 / {
+        # nil -> False
+        # set current to cadr tail and return
+        s/^LINK 0 ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/CAR \3\2/
+        T error
+        s/^CAR ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+        T error
+        b next-cont
+    }
+    # not nil -> True
+    # set current to car tail and return
+    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+    T error
+    b next-cont
 }
 
 # Not a builtin
