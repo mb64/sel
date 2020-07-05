@@ -7,7 +7,7 @@ s/^\n//
 
 # remove comments
 s/$/\n/
-s/#[^\n]*\n/\n/g
+s/;[^\n]*\n/\n/g
 
 # some things you're not allowed to do
 /_/b error

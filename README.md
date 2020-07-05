@@ -5,6 +5,7 @@
 ## Quick start
 
 ```shell
+$ make sel.sed
 $ ./sel.sed <<EOF
 val main (print "Hello, World!")
 EOF
@@ -16,31 +17,31 @@ Hello, World!
 ### Example
 
 ```lisp
-# I'm not sure if I like # for comments, I might change it
+; Comments are ;
 
-# Define values with val
+; Define values with val
 val nil ()
-# Function with func
+; Function with func
 func list (args)
 
-# use: (foreach function list)
+; use: (foreach function list)
 func foreach (
-    # if evaluates both args, so for recursion, we can use if to pick a
-    # function, and then run it on the arguments
-    (if (cadr-args) # conditions are true if non-nil
-        # Make an anoymous function by quoting its body
+    ; if evaluates both args, so for recursion, we can use if to pick a
+    ; function, and then run it on the arguments
+    (if (cadr-args) ; conditions are true if non-nil
+        ; Make an anoymous function by quoting its body
         (quote (nil
             ((car-args) (caadr-args))
             (foreach (car-args) (cdadr-args))
         ))
-        # If the list is nil, do nothing
+        ; If the list is nil, do nothing
         nil
     )
     (car-args)
     (cadr-args)
 )
 
-# Use val for main instead of func
+; Use val for main instead of func
 val main (foreach print
     (list
         "a warm greeting"
