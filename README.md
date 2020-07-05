@@ -21,15 +21,17 @@ Hello, World!
 
 ; Define values with val
 val nil ()
-; Function with func
-func list (args)
 
-; use: (foreach function list)
+; Write functions by quoting the function body, or with the func keyword
+func list (args)
+; ^^ syntactic sugar for val list (quote (args))
+
+; usage: (foreach function list)
 func foreach (
     ; if evaluates both args, so for recursion, we can use if to pick a
     ; function, and then run it on the arguments
     (if (cadr-args) ; conditions are true if non-nil
-        ; Make an anoymous function by quoting its body
+        ; Make an anonymous function by quoting its body
         (quote (nil
             ((car-args) (caadr-args))
             (foreach (car-args) (cdadr-args))

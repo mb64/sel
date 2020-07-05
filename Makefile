@@ -1,8 +1,8 @@
-run: sel.sed test-prog.txt
-	./sel.sed test-prog.txt
+run: sel.sed test-prog.sel
+	./sel.sed test-prog.sel
 
-dbg.txt: sel.sed test-prog.txt
-	timeout 0.5 sed --debug -E -f sel.sed test-prog.txt > dbg.txt
+dbg.txt: sel.sed test-prog.sel
+	timeout 0.5 sed --debug -E -f sel.sed test-prog.sel > dbg.txt
 
 sel.sed: parser.sed runner.sed
 	echo "#!/usr/bin/sed -nEf" > sel.sed
