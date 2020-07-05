@@ -56,8 +56,14 @@ builtins:
  [X] c[ad]+r
  [X] c[ad]+r-args
  [ ] cons
- [ ] if
+ [X] if
  [ ] eq?
+ [ ] str-concat
+ [ ] str-uncons
+ [ ] str-unpack
+ [ ] digit-+
+ [ ] digit-*
+ [ ] digit-gt?
  [ ] collect
 
 Plan

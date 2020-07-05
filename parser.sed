@@ -12,7 +12,17 @@ s/#[^\n]*\n/\n/g
 # some things you're not allowed to do
 /_/b error
 /@/b error
-/^ITEM /!b error
+
+###### Preprocessing ######
+
+s/^/\n/
+# If there's no PROGRAM, add one
+/\nPROGRAM/!s/^/\nPROGRAM/
+# If there's no START, add one
+/\nSTART/!s/\nPROGRAM/\nSTART main\nPROGRAM/
+# If there's no initial ITEMs, add one
+/\nITEM /!s/\nSTART/\nITEM 1 Bquote\nSTART/
+s/^\n//
 
 ###### Strings ######
 
@@ -36,9 +46,6 @@ s/\\"/"/g
 # new return marker
 s/$/\nlists/
 
-# Make sure they got the quote builtin
-/\nPROGRAM.*\nbuiltin\s+quote/!s/\nPROGRAM\n/&builtin quote\n/
-
 :lists-loop
 t lists-inner
 :lists-inner
@@ -56,6 +63,15 @@ s/\nlists$//
 /\nPROGRAM\n.*[)(]/ b error
 
 ###### builtins ######
+
+# collect all used builtins
+s/^/@\n/
+t find-builtins-loop
+:find-builtins-loop
+s/@(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if))(:.*)$/\1@\3\nbuiltin \2/
+t find-builtins-loop
+s/@//
+s/^\n//
 
 # new return marker
 s/$/\nbuiltins/
@@ -134,5 +150,8 @@ b parser-new-increment-loop
 /lists$/b lists-loop
 /builtins$/b builtins-loop
 b error
+
+:error
+q 1
 
 :parser-done
