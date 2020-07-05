@@ -1,5 +1,3 @@
-#!/usr/bin/sed -nEf
-
 # First, read all input
 H
 $!d
@@ -95,8 +93,7 @@ s/\nSTART.*/\nHEAPEND\n/
 s/\n+/\n/g
 
 ###### Done! ######
-p
-q
+b parser-done
 
 ############ Some subroutines ############
 
@@ -134,8 +131,4 @@ b parser-new-increment-loop
 /builtins$/b builtins-loop
 b error
 
-###### Exit with a sad status code ######
-:error
-s/.*/Error!/
-p
-q 1
+:parser-done

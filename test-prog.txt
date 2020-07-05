@@ -1,0 +1,12 @@
+ITEM 1 Bprint
+START main
+PROGRAM
+
+builtin print
+val nil ()
+val greeting "a warm greeting"
+val main (nil
+    (print greeting)
+    (print "I say, \"hello!\"")
+    (print "- from sed lisp")
+)

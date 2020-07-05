@@ -1,29 +1,3 @@
-#!/usr/bin/sed -nEf
-
-x
-s/^$/CURRENT 10\
-CONT\
-CONTEND\
-ARGS\
-ARGEND\
-HEAP\
-ITEM 10 L0:9\
-ITEM 9 L8:5\
-ITEM 8 L1:7\
-ITEM 7 L6:0\
-ITEM 6 "a warm greeting\
-ITEM 5 L4:0\
-ITEM 4 L1:3\
-ITEM 3 L2:0\
-ITEM 2 "from sed lisp\
-ITEM 1 Bprint\
-HEAPEND\
-INPUT:/
-G
-s/INPUT:\n/INPUT /
-s/_/\\u/g
-s/@/\\a/g
-
 b eval
 
 :main-loop
