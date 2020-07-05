@@ -228,6 +228,53 @@ b eval
     b str-concat-loop
 }
 
+/^Bstr-reverse-concat\n/ {
+    s/^Bstr-reverse-concat\n//
+
+    # Prepend "...\nREST rest\n
+    s/^CURRENT ([0-9]+)\n/"\nREST \1\n&/
+
+    t str-reverse-concat-loop
+    :str-reverse-concat-loop
+    /\nREST 0\n/ {
+        # Done concatenating! Now add new item
+        s/^("[^\n]*)\nREST 0\n(.*\nHEAP\n)/\2NEW \1\n/
+        b new
+    }
+    s/^("[^\n]*)\nREST ([0-9]+)\n(.*\nITEM \2 L([0-9]+):([0-9]+)\n)/\1\nADD \4\nREST \5\n\3/
+    T error
+    s/^"([^\n]*)\nADD ([0-9]+)\n(.*\nITEM \2 ("[^\n]*)\n)/\4\1\n\3/
+    T error
+    b str-reverse-concat-loop
+}
+
+/^Bdigit-add\n/ {
+    s/^Bdigit-add\n//
+
+    # Prepend LINK head tail
+    t dummy-lbl-9
+    :dummy-lbl-9
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    T error
+    # resolve first digit to a single-digit string
+    s/^LINK ([0-9]+)( .*\nITEM \1 "([0-9])\n)/\3\2/
+    T error
+    # get tail.head
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L([0-9]+):)/\1 \4\3/
+    T error
+    # resolve first digit to a single-digit string
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 "([0-9])\n)/\1\4\3/
+    T error
+    # if 1xy exists, return it
+    s/^([0-9][0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\1 L([0-9]+):0\n)/CURRENT \3\2/
+    t next-cont
+    # if not, try 1yx
+    s/^([0-9])([0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\2\1 L([0-9]+):0\n)/CURRENT \4\3/
+    t next-cont
+    # if neither of those worked, they didn't use arith.sel
+    b error
+}
+
 # Not a builtin
 s/^B([^\n]+)\n.*/Error: \1: not a builtin/
 p
