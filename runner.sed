@@ -60,7 +60,7 @@ b eval
 :pop-cont
 s/\nCONT\n[^\n]*\n/\nCONT\n/
 :next-cont
-/\nCONT\nCONTEND\n/b done
+/\nCONT\nCONTEND\n/b quit
 # keep looping
 b main-loop
 
@@ -173,51 +173,9 @@ b eval
 b error
 
 :error
-s/.*/error/
+s/.*/Error!/
 p
+q 1
 
-:done
-z
-
-
-# Plan
-# How continuations work:
-#   DO:
-#       if current.head is a builtin:
-#           set current to current.tail
-#           ... do builtin stuff on current ...
-#           set current to the result
-#       else: (current.head is likely a cons cell)
-#           push current.tail to ARGS
-#           set current to current.head
-#           (TODO: add TCO by checking if there's already a POPARGS continuation)
-#           push POPARGS continuation
-#           eval current
-#   TAIL value:
-#       push CONS current
-#       if value is nil:
-#           set current to nil
-#       else value is a cons cell:
-#           push TAIL value.tail
-#           set current to value.head
-#           eval current
-#   CONS value:
-#       create new cons cell Lvalue:current
-#       set current to result
-#   POPARGS:
-#       pretty self-explanatory
-# How eval current works:
-#   if current is a cons cell:
-#       if current.head is Bquote:
-#           set current to current.tail
-#       else:
-#           push DO
-#           push TAIL current.tail
-#           set current to current.head
-#           goto eval current
-#   else current is not a cons cell:
-#       do nothing
-#
-# ARGS grows UP
-# CONT grows UP
-# HEAP grows UP
+:quit
+q
