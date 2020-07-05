@@ -98,7 +98,9 @@ eval = do
   case M.lookup curr heap of
     Just (Link hd tl) -> do
       if M.lookup hd heap == Just (Builtin Quote)
-      then put $ Hold heap args cont tl
+      then case M.lookup tl heap of
+        Just (Link x _) -> put $ Hold heap args cont x
+        _ -> throwError "quote: bad arguments"
       else do
         put $ Hold heap args (Tail tl:Do:cont) hd
         eval
