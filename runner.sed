@@ -194,8 +194,44 @@ b eval
     b next-cont
 }
 
+/^Bcons\n/ {
+    s/^Bcons\n//
+
+    # Prepend LINK head tail
+    t dummy-lbl-8
+    :dummy-lbl-8
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    T error
+    # add NEW head tail.head and goto new
+    s/^LINK ([0-9]+) ([0-9]+)\n(.*\nHEAP\n)((.*\n)?ITEM \2 L([0-9]+):)/\3NEW L\1:\6\n\4/
+    T error
+    b new
+}
+
+/^Bstr-concat\n/ {
+    s/^Bstr-concat\n//
+
+    # Prepend "...\nREST rest\n
+    s/^CURRENT ([0-9]+)\n/"\nREST \1\n&/
+
+    t str-concat-loop
+    :str-concat-loop
+    /\nREST 0\n/ {
+        # Done concatenating! Now add new item
+        s/^("[^\n]*)\nREST 0\n(.*\nHEAP\n)/\2NEW \1\n/
+        b new
+    }
+    s/^("[^\n]*)\nREST ([0-9]+)\n(.*\nITEM \2 L([0-9]+):([0-9]+)\n)/\1\nADD \4\nREST \5\n\3/
+    T error
+    s/^("[^\n]*)\nADD ([0-9]+)\n(.*\nITEM \2 "([^\n]*)\n)/\1\4\n\3/
+    T error
+    b str-concat-loop
+}
+
 # Not a builtin
-b error
+s/^B([^\n]+)\n.*/Error: \1: not a builtin/
+p
+q 1
 
 :error
 s/.*/Error!/

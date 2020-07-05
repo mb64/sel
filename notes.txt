@@ -55,10 +55,11 @@ builtins:
  [X] args
  [X] c[ad]+r
  [X] c[ad]+r-args
- [ ] cons
+ [X] cons
  [X] if
  [ ] eq?
- [ ] str-concat
+ [X] str-concat
+ [ ] str-reverse-concat
  [ ] str-uncons
  [ ] str-unpack
  [ ] digit-+

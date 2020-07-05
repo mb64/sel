@@ -2,7 +2,7 @@ run: sel.sed test-prog.sel
 	./sel.sed test-prog.sel
 
 dbg.txt: sel.sed test-prog.sel
-	timeout 0.5 sed --debug -E -f sel.sed test-prog.sel > dbg.txt
+	timeout 0.5 sed --debug -E -f sel.sed test-prog.sel | sed -e 's/^COMMAND: */COMMAND: /' > dbg.txt
 
 sel.sed: parser.sed runner.sed
 	echo "#!/usr/bin/sed -nEf" > sel.sed
