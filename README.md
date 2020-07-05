@@ -1,0 +1,89 @@
+# Sel – Sed Lisp
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Quick start
+
+```bash
+sed -nEf sel.sed test-prog.txt
+# OR
+./sel.sed test-prog.txt
+# OR
+make run
+```
+Use a Heredoc or whatever:
+```
+./sel.sed <<EOF
+val main (print "Hello, World!")
+EOF
+```
+
+## The language
+
+### Syntax by example
+
+```lisp
+# Comments are #
+# I'm not sure if I like # for comments, I might change it
+
+# Define values with val
+val nil ()
+
+# Function with func
+func list (args)
+```
+
+### Datatypes
+
+There are four basic datatypes:
+ - Cons cells
+ - Strings
+ - Builtins
+ - Nil
+
+### Evaluation
+
+Everything is eagerly evaluated, unless it is quoted (`(quote (whatever))`).
+
+In list, each item is evaluated left-to-right, and then the head of the list
+is run with the tail as its arguments.
+
+Within a function, you can get the args using the `args` or `c[ad]+r-args`
+builtins.
+
+### Builtin functions
+
+There are an infinite number of builtin functions:
+
+ - `quote`: returns its first argument without evaluating anything
+ - `args`: gets the arguments to the function
+ - `print`: outputs its first argument, a string
+ - `if`: `(if cond a b)` returns `b` if `cond` is `nil`, and `a` otherwise
+ - `c[ad]+r`: standard Lisp `car`, `cdr`, `cadr`, etc, but with an unlimited number of `a`'s or `d`'s
+ - `c[ad]+r-args`: `(car-args)` is equivalent to `(car (args))`, but faster and easier
+
+### Dynamic symbol lookup and scope
+
+There is no dynamic symbol lookup, and no scope.
+
+Code is run in two steps:
+ 1. Parsing and name resolution. (File: `parser.sed`)
+
+    The result is a collection of cons cells, strings, and builtins, with no
+    names attached.
+
+ 2. Actually running it. (File: `runner.sed`)
+
+### Mutability and memory management
+
+Also none. Everything is fully immutable, and all data is leaked.
+
+However, it's not as memory-inefficient as that makes it seem: everything
+(strings, builtins, and even cons cells) is interned.
+
+## The implementation
+
+It's MIT licensed, so you're free to use/modify/etc it. Not sure why you'd want
+to, though.
+
+Requires GNU sed. Tested with GNU sed 4.8.
