@@ -10,8 +10,16 @@ s/$/\n/
 s/;[^\n]*\n/\n/g
 
 # some things you're not allowed to do
-/_/b error
-/@/b error
+/_/ {
+    s/.*/Error: the _ character is disallowed/
+    p
+    q 1
+}
+/@/ {
+    s/.*/Error: the @ character is disallowed/
+    p
+    q 1
+}
 
 ###### Preprocessing ######
 
@@ -41,6 +49,13 @@ s/\nstrings$//
 # Can unescape \" now
 s/\\"/"/g
 
+# Check for remaining quotes
+/\nPROGRAM.*"/ {
+    s/.*/Parse error: mismatched quotes/
+    p
+    q 1
+}
+
 ###### Lists ######
 
 # new return marker
@@ -60,7 +75,11 @@ t lists-inner
 
 s/\nlists$//
 # If there's any parens left over, they were mismatched
-/\nPROGRAM\n.*[)(]/ b error
+/\nPROGRAM\n.*[)(]/ {
+    s/.*/Parse error: mismatched parentheses/
+    p
+    q 1
+}
 
 ###### builtins ######
 
@@ -99,7 +118,11 @@ s/(\nITEM [0-9]+ L)([a-zA-Z0-9?-]*[a-zA-Z?-][a-zA-Z0-9?-]*)(:.*\nval \2 ([a-zA-Z
 t resolve-names-loop
 
 # check for unresolved identifiers
-/\nITEM [0-9]+ L[0-9]*[a-zA-Z?-]/ b error
+/\nITEM [0-9]+ L[0-9]*[a-zA-Z?-]/ {
+    s/.*\nITEM [0-9]+ L([a-zA-Z0-9?-]*[a-zA-Z?-][a-zA-Z0-9?-]*):.*/Parse error: unresolved name \1/
+    p
+    q 1
+}
 
 ###### other setup ######
 
@@ -150,9 +173,8 @@ b parser-new-increment-loop
 /strings$/b strings-loop
 /lists$/b lists-loop
 /builtins$/b builtins-loop
-b error
-
-:error
+s/.*/internal error in new/
+p
 q 1
 
 :parser-done
