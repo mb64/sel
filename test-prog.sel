@@ -33,6 +33,7 @@ val main (foreach print
         (list
             "Check it out!"
             "Now with more recursion"
+            "https://github.com/mb64/sel"
         )
     )
 )
