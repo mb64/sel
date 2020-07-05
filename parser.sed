@@ -65,10 +65,11 @@ s/\nlists$//
 ###### builtins ######
 
 # collect all used builtins
-s/^/@\n/
+s/^/\n/
+s/\nSTART/&@/
 t find-builtins-loop
 :find-builtins-loop
-s/@(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if))(:.*)$/\1@\3\nbuiltin \2/
+s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if))(:.*)@(.*)$/\1@\3\4\nbuiltin \2/
 t find-builtins-loop
 s/@//
 s/^\n//

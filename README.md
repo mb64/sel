@@ -4,18 +4,11 @@
 
 ## Quick start
 
-```bash
-sed -nEf sel.sed test-prog.txt
-# OR
-./sel.sed test-prog.txt
-# OR
-make run
-```
-Use a Heredoc or whatever:
-```
-./sel.sed <<EOF
+```shell
+$ ./sel.sed <<EOF
 val main (print "Hello, World!")
 EOF
+Hello, World!
 ```
 
 ## The language
