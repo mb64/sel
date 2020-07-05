@@ -1,4 +1,9 @@
 # First, read all input
+/^%include / {
+    # sadly the easiest way to read an arbitrary file is with cat
+    s/^%include /cat/
+    e
+}
 H
 $!d
 z
@@ -42,7 +47,7 @@ t parser-dummy-lbl-0
 :parser-dummy-lbl-0
 s/\nPROGRAM\n([^"]*)"(([^"\n]|\\")*)"/\nPROGRAM\n"\2\n\1@/
 T done-strings
-s/^(.*\nPROGRAM\n)("[^\n]+\n)/NEW \2\1/
+s/^(.*\nPROGRAM\n)("[^\n]*\n)/NEW \2\1/
 b parser-new
 :done-strings
 s/\nstrings$//
@@ -88,7 +93,7 @@ s/^/\n/
 s/\nSTART/&@/
 t find-builtins-loop
 :find-builtins-loop
-s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-concat))(:.*)@(.*)$/\1@\3\4\nbuiltin \2/
+s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-concat|digit-add))(:.*)@(.*)$/\1@\3\4\nbuiltin \2/
 t find-builtins-loop
 s/@//
 s/^\n//
