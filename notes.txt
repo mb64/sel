@@ -15,7 +15,7 @@ builtin := quote
          | print
          | input
 item := Lnum:num
-      | Schar*
+      | "char*
       | Bbuiltin
 
 contitem := NEXT num
