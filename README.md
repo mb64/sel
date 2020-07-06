@@ -121,6 +121,23 @@ Also none. Everything is fully immutable, and all data is leaked.
 However, it's not as memory-inefficient as that makes it seem: everything
 (strings, builtins, and even cons cells) is interned.
 
+### Arithmentic
+ 
+You can do arithmetic, too!  See `arith.py` for an explanation of how it works,    
+and `fibonacci.sel` for an example. 
+ 
+It boasts AFAIK the fastest sed implementation of recursive fibonacci ever
+written:
+
+```shell
+$ time ./sel.sed fibonacci.sel
+(fibonacci 10) is 55
+
+real	6m19.680s
+user	6m0.594s
+sys	0m18.389s
+```
+
 ## The implementation
 
 It's MIT licensed, so you're free to use/modify/etc it. Not sure why you'd want
