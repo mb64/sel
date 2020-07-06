@@ -13,7 +13,7 @@ builtin := quote
          | args
          | c[ad]+r-args
          | print
-         | input
+         | ...
 item := Lnum:num
       | "char*
       | Bbuiltin
@@ -39,15 +39,12 @@ ITEM num item
 ITEM num item
 ...
 HEAPEND
-INPUT ([^_@\]|\\|\u|\a)*
 
 A function is a list.
 To call a function:
  - push the args to ARGS
  - push a POPARGS continuation
  - evaluate the function
-
-idea: infinite builtins: c[ad]+r
 
 builtins:
  [X] quote
@@ -67,7 +64,7 @@ builtins:
  [X] digit-add
  [X] digit-add-carry
  [ ] digit-mul
- [ ] digit-lte?
+ [X] digit-lte?
  [ ] collect
 
 Plan

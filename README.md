@@ -23,6 +23,7 @@ Hello, World!
 val nil ()
 
 ; Write functions by quoting the function body, or with the func keyword
+; The list function just returns its arguments
 func list (args)
 ; ^^ syntactic sugar for val list (quote (args))
 
@@ -70,7 +71,7 @@ There are four basic datatypes:
 
 Everything is eagerly evaluated, unless it is quoted (`(quote (whatever))`).
 
-In list, each item is evaluated left-to-right, and then the head of the list
+In a list, each item is evaluated left-to-right, and then the head of the list
 is run with the tail as its arguments.
 
 Within a function, you can get the args using the `args` or `c[ad]+r-args`
@@ -159,3 +160,17 @@ user	0m0.791s
 sys	0m0.021s
 ```
 
+It's in two parts, the parser and the runner.  They're designed such that they
+can be run (and debugged) independently:
+
+```shell
+$ sed -E -f parser.sed input.sel > input.sec # sec for SEL Compiled
+$ # OR
+$ make input.sec
+```
+
+```shell
+$ sed -nE -f read-all.sed -f runner.sed input.sec
+```
+
+See `notes.txt` for some design notes.
