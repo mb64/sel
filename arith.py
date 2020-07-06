@@ -122,6 +122,31 @@ func add (
     (car-args)
     (cadr-args)
 )
+
+func dec (
+    (if (car-args)
+        (quote (
+            (quote
+                (cons (cdar-args)
+                    (
+                        (if (caar-args)
+                            (quote (car-args))
+                            (quote (
+                                (quote (if (eq? (car-args) (quote ("0"))) () (car-args)))
+                                (dec (car-args))
+                            ))
+                        )
+                        (cadr-args)
+                    )
+                )
+            )
+            (digit-add (caar-args) "9")
+            (cdar-args)
+        ))
+        ()
+    )
+    (car-args)
+)
 '''
 
 print(arith_funcs)
