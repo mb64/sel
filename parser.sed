@@ -1,7 +1,7 @@
 # First, read all input
 /^%include / {
     # sadly the easiest way to read an arbitrary file is with cat
-    s/^%include /cat/
+    s/^%include/cat/
     e
 }
 H
