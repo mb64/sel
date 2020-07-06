@@ -28,8 +28,8 @@ func list (args)
 
 ; usage: (foreach function list)
 func foreach (
-    ; if evaluates both args, so for recursion, we can use if to pick a
-    ; function, and then run it on the arguments
+    ; `if` evaluates all of its args, so to only evaluate one, we can use `if`
+    ; to pick a function, and then run it on the arguments
     (if (cadr-args) ; conditions are true if non-nil
         ; Make an anonymous function by quoting its body
         (quote (nil
@@ -43,13 +43,19 @@ func foreach (
     (cadr-args)
 )
 
-; Use val for main instead of func
 val main (foreach print
     (list
         "a warm greeting"
         "from sed lisp"
     )
 )
+```
+Run with:
+```shell
+$ make sel.sed
+$ ./sel.sed example.sel
+a warm greeting
+from sed lisp
 ```
 
 ### Datatypes
@@ -78,10 +84,21 @@ There are an infinite number of builtin functions:
  - `args`: gets the arguments to the function
  - `print`: outputs its first argument, a string
  - `if`: `(if cond a b)` returns `b` if `cond` is `nil`, and `a` otherwise
- - `c[ad]+r`: standard Lisp `car`, `cdr`, `cadr`, etc, but with an unlimited number of `a`'s or `d`'s
- - `c[ad]+r-args`: `(car-args)` is equivalent to `(car (args))`, but faster and easier
+ - `c[ad]+r`: standard Lisp `car`, `cdr`, `cadr`, etc, but with an unlimited
+    number of `a`'s or `d`'s
+ - `c[ad]+r-args`: `(car-args)` is equivalent to `(car (args))`, but faster and
+    easier
  - `cons`: creates a new cons cell
  - `str-concat`: concatenates all of its arguments, which should be strings
+ - `str-concatl`: concatenates a list of strings
+ - `str-reverse-concat`: concatenates all of its arguments, which should be
+    strings, in reverse order
+ - `str-reverse-concatl`: concatenates a list of strings, in reverse order
+ - `digit-add`: add two digits, giving a cons cell `(bool carry, digit sum)`
+ - `digit-add-carry`: add two digits + 1, giving a cons cell `(bool carry, digit sum)`
+
+    Note that `digit-add` and `digit-add-carry` only work if you `%include arith.sel`
+    in your program
 
 ### Dynamic symbol lookup and scope
 
@@ -113,7 +130,7 @@ It's also *blazing fast*.  The example program `test-prog.sel` performs multiple
 list traversals in *under a second!*
 
 ```shell
-$ time ./sel.sed test-prog.sel 
+$ time ./sel.sed test-prog.sel
 sed lisp says: Check it out!
 sed lisp says: Now with more recursion
 sed lisp says: https://github.com/mb64/sel
