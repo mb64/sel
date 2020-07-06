@@ -312,6 +312,33 @@ b eval
     b next-cont
 }
 
+/^Bdigit-lte\?\n/ {
+    s/^Bdigit-lte\?\n//
+    # Prepend LINK head tail
+    t dummy-lbl-10
+    :dummy-lbl-10
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    T error
+    # resolve first digit to a single-digit string
+    s/^LINK ([0-9]+)( .*\nITEM \1 "([0-9])\n)/\3\2/
+    T error
+    # get tail.head
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L([0-9]+):)/\1 \4\3/
+    T error
+    # resolve first digit to a single-digit string
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 "([0-9])\n)/\1\4\3/
+    T error
+    # if 1xy exists, then x ≤ y
+    /^([0-9][0-9])\n.*\nITEM 1\1 / {
+        # Return 1 for true
+        s/^[0-9][0-9]\nCURRENT [0-9]+\n/CURRENT 1\n/
+        b next-cont
+    }
+    # otherwise, return 0 for false
+    s/^[0-9][0-9]\nCURRENT [0-9]+\n/CURRENT 0\n/
+    b next-cont
+}
+
 # Not a builtin
 s/^B([^\n]+)\n.*/Error: \1: not a builtin/
 p
