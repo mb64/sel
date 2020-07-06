@@ -4,31 +4,25 @@ val nil ()
 
 func list (args)
 
-func foreach (
-    (if (cadr-args)
-        (quote (nil
-            ((caar-args) (caadar-args))
-            (foreach (caar-args) (cdadar-args))
-        ))
-        nil
-    )
-    (args)
-)
+; func foreach (if (cadr-args)
+;     (nil
+;         ((car-args) (caadr-args))
+;         (foreach (car-args) (cdadr-args))
+;     )
+;     nil
+; )
 
-func map (
-    (if (cadr-args)
-        (quote (cons
-            ((caar-args) (caadar-args))
-            (map (caar-args) (cdadar-args))
-        ))
-        nil
+func map (if (cadr-args)
+    (cons
+        ((car-args) (caadr-args))
+        (map (car-args) (cdadr-args))
     )
-    (args)
+    nil
 )
 
 func sel-says (str-concat "sed lisp says: " (car-args))
 
-val main (foreach print
+val main (map print
     (map sel-says
         (list
             "Check it out!"

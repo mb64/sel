@@ -77,8 +77,8 @@ How continuations work:
       else: (current.head is likely a cons cell)
           push current.tail to ARGS
           set current to current.head
-          (TODO: add TCO by checking if there's already a POPARGS continuation)
           push POPARGS continuation
+          Check for repeated POPARGS continuations and simplify
           eval current
   TAIL value:
       push CONS current
@@ -97,6 +97,10 @@ How eval current works:
   if current is a cons cell:
       if current.head is Bquote:
           set current to current.tail.head
+      else if current.head is Bif:
+          set current to current.tail.head
+          push TAILIF current.tail.tail
+          goto eval current
       else:
           push DO
           push TAIL current.tail

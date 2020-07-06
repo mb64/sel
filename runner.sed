@@ -4,7 +4,7 @@ b eval
 
 # Execute the continuation!
 
-/\nCONT\nDO/{
+/\nCONT\nDO\n/ {
     # drop DO
     s/\nCONT\nDO\n/\nCONT\n/
     # prepend ^LINK head tail\n
@@ -28,11 +28,11 @@ b eval
     b eval
 }
 
-/\nCONT\nTAIL/{
+/\nCONT\nTAIL / {
     # push CONS current behind TAIL value
     s/^CURRENT ([0-9]+)\nCONT\nTAIL [0-9]+\n/&CONS \1\n/
     # if value is nil:
-    /\nCONT\nTAIL 0\n/{
+    /\nCONT\nTAIL 0\n/ {
         # set current to 0
         s/^CURRENT [0-9]+\n/CURRENT 0\n/
         b pop-cont
@@ -45,18 +45,41 @@ b eval
     b eval
 }
 
-/\nCONT\nCONS/{
+/\nCONT\nCONS / {
     # push heap NEW Lvalue:current, drop CONS value, and goto new
     s/^(CURRENT ([0-9]+)\nCONT\nCONS ([0-9]+)\n.*\n)HEAP\n/\1HEAP\nNEW L\3:\2\n/
     s/\nCONT\nCONS [0-9]+\n/\nCONT\n/
     b new
 }
 
-/\nCONT\nPOPARGS/{
+/\nCONT\nPOPARGS\n/ {
     # pop args
     s/\nARGS\n[0-9]+\n/\nARGS\n/
     b pop-cont
 }
+
+/\nCONT\nTAILIF / {
+    t dummy-lbl-tailif
+    :dummy-lbl-tailif
+    /^CURRENT 0\n/ {
+        # False case: eval value.tail.head
+        s/^CURRENT 0\nCONT\nTAILIF ([0-9]+)(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/\3\nCONT\2/
+        T error
+        s/^([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+        T error
+        b eval
+    }
+
+    # True case: eval value.head
+    s/^CURRENT [0-9]+\nCONT\nTAILIF ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\nCONT\2/
+    T error
+    b eval
+}
+
+# Unrecognized continuation: error
+s/.*\nCONT\n([^\n]*)\n.*/Internal error: bad continuation \1/
+p
+q 1
 
 # Next continutation!
 :pop-cont
@@ -103,13 +126,18 @@ t dummy-lbl-4
 s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
 # if it's not a cons cell, do nothing
 T next-cont
-/^LINK ([0-9]+) .*\nITEM \1 Bquote\n/{
+/^LINK ([0-9]+) .*\nITEM \1 Bquote\n/ {
     # Quote: set current to tail.head, cleanup, and return
-    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+\n/CURRENT \1\n/
-    T error
-    s/^CURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
     T error
     b next-cont
+}
+/^LINK ([0-9]+) .*\nITEM \1 Bif\n/ {
+    # If: set current to tail.head, push TAILIF tail.tail
+    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+(\nCONT\n)(.*\nITEM \1 L([0-9]+):([0-9]+)\n)/CURRENT \4\2TAILIF \5\n\3/
+    T error
+    # keep eval-ing
+    b eval
 }
 # push cont TAIL current.tail\nDO
 # set current to current.head
@@ -120,7 +148,7 @@ b eval
 ###### builtins ######
 :do-builtin
 
-/^Bprint\n/{
+/^Bprint\n/ {
     # print the first arg, a string
     s/^Bprint\n//
     # switch to hold space and print it
@@ -168,30 +196,6 @@ b eval
     s/d\nCURRENT ([0-9]+)(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/\nCURRENT \3\2/
     T error
     b c[ad]+r-loop
-}
-
-/^Bif\n/ {
-    s/^Bif\n//
-
-    # Prepend LINK head tail
-    t dummy-lbl-7
-    :dummy-lbl-7
-    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
-    T error
-    /^LINK 0 / {
-        # nil -> False
-        # set current to cadr tail and return
-        s/^LINK 0 ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \1 L[0-9]+:([0-9]+)\n)/CAR \3\2/
-        T error
-        s/^CAR ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
-        T error
-        b next-cont
-    }
-    # not nil -> True
-    # set current to car tail and return
-    s/^LINK [0-9]+ ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
-    T error
-    b next-cont
 }
 
 /^Bcons\n/ {
@@ -281,7 +285,9 @@ b eval
     s/^([0-9])([0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\2\1 L([0-9]+):0\n)/CURRENT \4\3/
     t done-digit-add
     # if neither of those worked, they didn't use arith.sel
-    b error
+    s/.*/Error: you shoulda used arith.sel/
+    p
+    q 1
 
     :done-digit-add
     /\ncarry$/ {
