@@ -22,6 +22,8 @@ b eval
     s/^LINK ([0-9]+) ([0-9]+)\nCURRENT [0-9]+(\n.*\nARGS\n)/CURRENT \1\3\2\n/
     #   push POPARGS continuation
     s/\nCONT\n/\nCONT\nPOPARGS\n/
+    #   check for repeated POPARGS
+    s/\nCONT\nPOPARGS(\nPOPARGS\n.*\nARGS\n[0-9]+\n)[0-9]+\n/\nCONT\1/
     #   goto eval
     b eval
 }

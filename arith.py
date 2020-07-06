@@ -25,19 +25,6 @@ for x in reversed(range(10)):
     for y in reversed(range(x, 10)):
         print("ITEM 1{}{} L{}:0".format(x, y, 20 + x + y))
 
-# some builtins
-print("ITEM 51 Bcaadr-args")
-print("ITEM 50 Bcdadadr-args")
-print("ITEM 49 Bcdaadr-args")
-print("ITEM 48 Bcadr-args")
-print("ITEM 47 Bcaar-args")
-print("ITEM 46 Bstr-reverse-concatl")
-print("ITEM 45 Bstr-reverse-concat")
-print("ITEM 44 Bstr-concatl")
-print("ITEM 43 Bstr-concat")
-print("ITEM 42 Bdigit-add-carry")
-print("ITEM 41 Bdigit-add")
-
 # Output results for addition with carry
 for x in reversed(range(10)):
     print("ITEM 3{x} L1:1{x}".format(x=x))
@@ -49,18 +36,6 @@ for x in reversed(range(10)):
 # Output digits
 for x in reversed(range(10)):
     print("ITEM 1{x} \"{x}".format(x=x))
-
-# Bc we're capitalizing all the low-number cons cells with this, might as well
-# make items 1-9 some commonly used builtins
-print("ITEM 9 Bcadr-args")
-print("ITEM 8 Bcdr-args")
-print("ITEM 7 Bcar-args")
-print("ITEM 6 Bcadr")
-print("ITEM 5 Bcdr")
-print("ITEM 4 Bcar")
-print("ITEM 3 Bargs")
-print("ITEM 2 Bprint")
-print("ITEM 1 Bquote")
 
 # Program section!
 print("PROGRAM")
