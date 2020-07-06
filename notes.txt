@@ -59,12 +59,13 @@ builtins:
  [X] if
  [ ] eq?
  [X] str-concat
- [ ] str-reverse-concat
+ [X] str-reverse-concat
  [ ] str-uncons
  [ ] str-unpack
- [ ] digit-+
- [ ] digit-*
- [ ] digit-gt?
+ [X] digit-add
+ [X] digit-add-carry
+ [ ] digit-mul
+ [ ] digit-lte?
  [ ] collect
 
 Plan

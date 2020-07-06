@@ -79,20 +79,18 @@ t next-cont
 s/^CURRENT [0-9]+(\n.*\n)NEW ([^\n]+\nITEM ([0-9]+) )/CURRENT \3_\1ITEM \3_ \2/
 t increment-loop
 :increment-loop
-s/\b_/1/g
-s/8_/9/g
-s/7_/8/g
-s/6_/7/g
-s/5_/6/g
-s/4_/5/g
-s/3_/4/g
-s/2_/3/g
-s/1_/2/g
-s/0_/1/g
-t next-cont
+s/\b_/1/g ; t next-cont
+s/8_/9/g ; t next-cont
+s/7_/8/g ; t next-cont
+s/6_/7/g ; t next-cont
+s/5_/6/g ; t next-cont
+s/4_/5/g ; t next-cont
+s/3_/4/g ; t next-cont
+s/2_/3/g ; t next-cont
+s/1_/2/g ; t next-cont
+s/0_/1/g ; t next-cont
 s/9_/_0/g
-t dummy-lbl-3
-:dummy-lbl-3
+t increment-loop
 b increment-loop
 
 ###### eval ######
@@ -248,8 +246,12 @@ b eval
     b str-reverse-concat-loop
 }
 
-/^Bdigit-add\n/ {
-    s/^Bdigit-add\n//
+/^Bdigit-add(-carry)?\n/ {
+    /^Bdigit-add-carry\n/ {
+        # remember to carry
+        s/$/\ncarry/
+    }
+    s/^Bdigit-add(-carry)?\n//
 
     # Prepend LINK head tail
     t dummy-lbl-9
@@ -267,12 +269,37 @@ b eval
     T error
     # if 1xy exists, return it
     s/^([0-9][0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\1 L([0-9]+):0\n)/CURRENT \3\2/
-    t next-cont
+    t done-digit-add
     # if not, try 1yx
     s/^([0-9])([0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\2\1 L([0-9]+):0\n)/CURRENT \4\3/
-    t next-cont
+    t done-digit-add
     # if neither of those worked, they didn't use arith.sel
     b error
+
+    :done-digit-add
+    /\ncarry$/ {
+        s/\ncarry$//
+        # increment it
+        # this relies on the specific layout of the numbers in memory
+        s/^CURRENT [0-9]+/&_/
+        t digit-inc-loop
+        :digit-inc-loop
+        s/\b_/1/ ; t next-cont
+        # ^^ this one shouldn't happen
+        s/8_/9/ ; t next-cont
+        s/7_/8/ ; t next-cont
+        s/6_/7/ ; t next-cont
+        s/5_/6/ ; t next-cont
+        s/4_/5/ ; t next-cont
+        s/3_/4/ ; t next-cont
+        s/2_/3/ ; t next-cont
+        s/1_/2/ ; t next-cont
+        s/0_/1/ ; t next-cont
+        s/9_/_0/
+        t digit-inc-loop
+        b digit-inc-loop
+    }
+    b next-cont
 }
 
 # Not a builtin
