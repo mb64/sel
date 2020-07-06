@@ -2,6 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+Have you ever wished you had a functional programming language, but all you had
+was GNU coreutils?
+
+Wish no more, with **Sed Lisp** a Lisp interpreter in `sed`.
+
 ## Quick start
 
 ```shell
