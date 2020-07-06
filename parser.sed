@@ -93,7 +93,8 @@ s/^/\n/
 s/\nSTART/&@/
 t find-builtins-loop
 :find-builtins-loop
-s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-(reverse-)?concatl?|digit-add(-carry)?|digit-lte\?))(:.*)@(.*)$/\1@\5\6\nbuiltin \2/
+# ugh this regex for all the builtins is getting really long
+s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-(reverse-)?concatl?|digit-add(-carry)?|digit-lte\?|eq\?))(:.*)@(.*)$/\1@\5\6\nbuiltin \2/
 t find-builtins-loop
 s/@//
 s/^\n//

@@ -339,6 +339,20 @@ b eval
     b next-cont
 }
 
+/^Beq\?\n/ {
+    s/^Beq\?\n//
+    # Prepend LINK head tail
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    # Check if they're the same
+    t dummy-lbl-11
+    :dummy-lbl-11
+    s/^LINK ([0-9]+) ([0-9]+)\nCURRENT [0-9]+(\n.*\nITEM \2 L\1:)/CURRENT 1\3/
+    t next-cont
+    # they're not the same: set current to 0
+    s/^LINK [0-9]+ [0-9]+\nCURRENT [0-9]+\n/CURRENT 0\n/
+    b next-cont
+}
+
 # Not a builtin
 s/^B([^\n]+)\n.*/Error: \1: not a builtin/
 p

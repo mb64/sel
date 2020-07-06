@@ -89,6 +89,7 @@ There are an infinite number of builtin functions:
  - `c[ad]+r-args`: `(car-args)` is equivalent to `(car (args))`, but faster and
     easier
  - `cons`: creates a new cons cell
+ - `eq?`: returns truthy if the args are equal
  - `str-concat`: concatenates all of its arguments, which should be strings
  - `str-concatl`: concatenates a list of strings
  - `str-reverse-concat`: concatenates all of its arguments, which should be
@@ -96,9 +97,10 @@ There are an infinite number of builtin functions:
  - `str-reverse-concatl`: concatenates a list of strings, in reverse order
  - `digit-add`: add two digits, giving a cons cell `(bool carry, digit sum)`
  - `digit-add-carry`: add two digits + 1, giving a cons cell `(bool carry, digit sum)`
+ - `digit-lte?`: `(digit-lte? x y)` returns truthy if x ≤ y
 
-    Note that `digit-add` and `digit-add-carry` only work if you `%include arith.sel`
-    in your program
+    Note that `digit-add`, `digit-add-carry`, and `digit-lte?` only work if you
+    `%include arith.sel` in your program
 
 ### Dynamic symbol lookup and scope
 

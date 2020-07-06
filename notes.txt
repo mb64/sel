@@ -57,7 +57,7 @@ builtins:
  [X] c[ad]+r-args
  [X] cons
  [X] if
- [ ] eq?
+ [X] eq?
  [X] str-concat
  [X] str-reverse-concat
  [X] str-concatl
