@@ -18,7 +18,7 @@ arith.sel: arith.py
 hs:
 	runhaskell sel.hs
 
-%.sec: %.sel parser.sed
+%.sec: %.sel *.sel parser.sed
 	sed -Ef parser.sed $< > $@
 
 .PHONY: run debug hs

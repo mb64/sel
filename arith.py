@@ -25,6 +25,15 @@ for x in reversed(range(10)):
     for y in reversed(range(x, 10)):
         print("ITEM 1{}{} L{}:0".format(x, y, 20 + x + y))
 
+# some builtins
+print("ITEM 47 Bcaar-args")
+print("ITEM 46 Bstr-reverse-concatl")
+print("ITEM 45 Bstr-reverse-concat")
+print("ITEM 44 Bstr-concatl")
+print("ITEM 43 Bstr-concat")
+print("ITEM 42 Bdigit-add-carry")
+print("ITEM 41 Bdigit-add")
+
 # Output results for addition with carry
 for x in reversed(range(10)):
     print("ITEM 3{x} L1:1{x}".format(x=x))
@@ -51,3 +60,68 @@ print("ITEM 1 Bquote")
 
 # Program section!
 print("PROGRAM")
+
+# numbers are little-endian lists of numbers
+arith_funcs = '''
+func num-to-str (str-reverse-concatl (car-args))
+
+; (add-carry x y) == x + y + 1
+; Also deals with if x and/or y is nil
+func add-carry (
+    (if (car-args)
+        (if (cadr-args)
+            (quote ( ; Both! hope I got this right
+                (quote (cons (cdar-args)
+                    ((if (caar-args) add-carry add)
+                        (cdaadr-args)
+                        (cdadadr-args)
+                    )
+                ))
+                (digit-add-carry (caar-args) (caadr-args))
+                (args)
+            ))
+            (quote ; Yes x, but no y: add 1 to x
+                (add (car-args) (quote ("1")))
+            )
+        )
+        (if (cadr-args)
+            (quote ; Yes y, but no x: add 1 to y
+                (add (cadr-args) (quote ("1")))
+            )
+            (quote ; Both are nil: just return ("1")
+                (quote ("1"))
+            )
+        )
+    )
+    (car-args)
+    (cadr-args)
+)
+
+; (add x y) == x + y
+; Also deals with if x and/or y is nil
+func add (
+    (if (car-args)
+        (if (cadr-args)
+            (quote ( ; Both -- I sincerely hope to never type cdadadr again in my life
+                (quote (cons (cdar-args)
+                    ((if (caar-args) add-carry add)
+                        (cdaadr-args)
+                        (cdadadr-args)
+                    )
+                ))
+                (digit-add (caar-args) (caadr-args))
+                (args)
+            ))
+            (quote (car-args)) ; Yes x, but no y: return x
+        )
+        (if (cadr-args)
+            (quote (cadr-args)) ; Yes y, but no x: return y
+            () ; Both are nil: return nil
+        )
+    )
+    (car-args)
+    (cadr-args)
+)
+'''
+
+print(arith_funcs)

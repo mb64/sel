@@ -1,0 +1,18 @@
+%include arith.sel
+
+val nil ()
+func list (args)
+
+; Numbers are little-endian lists of digits
+val x (list "5" "1") ; 15
+val y (list "8" "4" "2") ; 248
+
+val main (print (str-concat
+    (num-to-str x)
+    " + "
+    (num-to-str y)
+    " = "
+    (num-to-str (add x y))
+))
+
+; vim:ft=lisp

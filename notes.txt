@@ -60,6 +60,8 @@ builtins:
  [ ] eq?
  [X] str-concat
  [X] str-reverse-concat
+ [X] str-concatl
+ [X] str-reverse-concatl
  [ ] str-uncons
  [ ] str-unpack
  [X] digit-add

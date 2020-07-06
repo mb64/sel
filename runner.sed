@@ -206,8 +206,13 @@ b eval
     b new
 }
 
-/^Bstr-concat\n/ {
-    s/^Bstr-concat\n//
+/^Bstr-concatl?\n/ {
+    # for str-concatl:
+    # concatenate a list as first arg, instead of args
+    # pre-process by doing car current
+    s/^Bstr-concatl\nCURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+
+    s/^Bstr-concatl?\n//
 
     # Prepend "...\nREST rest\n
     s/^CURRENT ([0-9]+)\n/"\nREST \1\n&/
@@ -226,7 +231,12 @@ b eval
     b str-concat-loop
 }
 
-/^Bstr-reverse-concat\n/ {
+/^Bstr-reverse-concatl?\n/ {
+    # for str-reverse-concatl:
+    # concatenate a list as first arg, instead of args
+    # pre-process by doing car current
+    s/^Bstr-reverse-concatl\nCURRENT ([0-9]+)(\n.*\nITEM \1 L([0-9]+):)/CURRENT \3\2/
+
     s/^Bstr-reverse-concat\n//
 
     # Prepend "...\nREST rest\n
