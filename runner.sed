@@ -265,19 +265,14 @@ b eval
     }
     s/^Bdigit-add(-carry)?\n//
 
-    # Prepend LINK head tail
+    # Prepend x tail
+    # relies on the fact that the digits are in 1x
     t dummy-lbl-9
     :dummy-lbl-9
-    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
-    T error
-    # resolve first digit to a single-digit string
-    s/^LINK ([0-9]+)( .*\nITEM \1 "([0-9])\n)/\3\2/
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L1([0-9]):([0-9]+)\n/\2 \3\n&/
     T error
     # get tail.head
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L([0-9]+):)/\1 \4\3/
-    T error
-    # resolve first digit to a single-digit string
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 "([0-9])\n)/\1\4\3/
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L1([0-9]):)/\1\4\3/
     T error
     # if 1xy exists, return it
     s/^([0-9][0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\1 L([0-9]+):0\n)/CURRENT \3\2/
@@ -316,19 +311,14 @@ b eval
 
 /^Bdigit-lte\?\n/ {
     s/^Bdigit-lte\?\n//
-    # Prepend LINK head tail
+    # Prepend x tail
+    # relies on the fact that the digits are in 1x
     t dummy-lbl-10
     :dummy-lbl-10
-    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
-    T error
-    # resolve first digit to a single-digit string
-    s/^LINK ([0-9]+)( .*\nITEM \1 "([0-9])\n)/\3\2/
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L1([0-9]):([0-9]+)\n/\2 \3\n&/
     T error
     # get tail.head
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L([0-9]+):)/\1 \4\3/
-    T error
-    # resolve first digit to a single-digit string
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 "([0-9])\n)/\1\4\3/
+    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L1([0-9]):)/\1\4\3/
     T error
     # if 1xy exists, then x ≤ y
     /^([0-9][0-9])\n.*\nITEM 1\1 / {
