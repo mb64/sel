@@ -26,6 +26,10 @@ for x in reversed(range(10)):
         print("ITEM 1{}{} L{}:0".format(x, y, 20 + x + y))
 
 # some builtins
+print("ITEM 51 Bcaadr-args")
+print("ITEM 50 Bcdadadr-args")
+print("ITEM 49 Bcdaadr-args")
+print("ITEM 48 Bcadr-args")
 print("ITEM 47 Bcaar-args")
 print("ITEM 46 Bstr-reverse-concatl")
 print("ITEM 45 Bstr-reverse-concat")
