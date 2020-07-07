@@ -4,18 +4,19 @@ func list (args)
 
 ; Numbers are little-endian lists of digits
 val n (list "0" "1") ; 10
-val one (list "1")
-val zero (list "0")
+val one (quote ("1"))
+val zero (quote ("0"))
 
-func fibonacci (
-    (if (eq? (car-args) one)
-        (quote one)
-        (if (eq? (car-args) zero)
-            (quote zero)
+func fibonacci
+(if (eq? (car-args) one)
+    one
+    (if (eq? (car-args) zero)
+        zero
+        (
             (quote (add (fibonacci (car-args)) (fibonacci (dec (car-args)))))
+            (dec (car-args))
         )
     )
-    (dec (car-args))
 )
 
 val main (print (str-concat

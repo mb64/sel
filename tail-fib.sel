@@ -11,7 +11,7 @@ val zero (list "0")
 func fib-tail (
     (if (eq? (car-args) zero)
         (quote (cadar-args))
-        (quote (fib-tail 
+        (quote (fib-tail
             (dec (caar-args))
             (add (cadar-args) (caddar-args))
             (cadar-args)

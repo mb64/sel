@@ -34,19 +34,14 @@ func list (args)
 
 ; usage: (foreach function list)
 func foreach (
-    ; `if` evaluates all of its args, so to only evaluate one, we can use `if`
-    ; to pick a function, and then run it on the arguments
     (if (cadr-args) ; conditions are true if non-nil
-        ; Make an anonymous function by quoting its body
-        (quote (nil
+        (nil
             ((car-args) (caadr-args))
             (foreach (car-args) (cdadr-args))
-        ))
+        )
         ; If the list is nil, do nothing
         nil
     )
-    (car-args)
-    (cadr-args)
 )
 
 val main (foreach print
@@ -89,7 +84,7 @@ There are an infinite number of builtin functions:
  - `quote`: returns its first argument without evaluating anything
  - `args`: gets the arguments to the function
  - `print`: outputs its first argument, a string
- - `if`: `(if cond a b)` returns `b` if `cond` is `nil`, and `a` otherwise
+ - `if`: `(if cond a b)` does `b` if `cond` is `nil`, and `a` otherwise
  - `c[ad]+r`: standard Lisp `car`, `cdr`, `cadr`, etc, but with an unlimited
     number of `a`'s or `d`'s
  - `c[ad]+r-args`: `(car-args)` is equivalent to `(car (args))`, but faster and
@@ -128,10 +123,10 @@ However, it's not as memory-inefficient as that makes it seem: everything
 (strings, builtins, and even cons cells) is interned.
 
 ### Arithmentic
- 
-You can do arithmetic, too!  See `arith.py` for an explanation of how it works,    
-and `fibonacci.sel` for an example. 
- 
+
+You can do arithmetic, too!  See `arith.py` for an explanation of how it works,
+and `fibonacci.sel` for an example.
+
 It boasts AFAIK the fastest sed implementation of recursive fibonacci ever
 written:
 
@@ -139,9 +134,9 @@ written:
 $ time ./sel.sed fibonacci.sel
 (fibonacci 10) is 55
 
-real	6m19.680s
-user	6m0.594s
-sys	0m18.389s
+real	1m53.091s
+user	1m46.753s
+sys	0m6.225s
 ```
 
 ## The implementation
@@ -152,7 +147,7 @@ to, though.
 Requires GNU sed. Tested with GNU sed 4.8.
 
 It's also *blazing fast*.  The example program `test-prog.sel` performs multiple
-list traversals in *under a second!*
+list traversals in *under ~~a second~~ __half__ a second!*
 
 ```shell
 $ time ./sel.sed test-prog.sel
@@ -160,8 +155,8 @@ sed lisp says: Check it out!
 sed lisp says: Now with more recursion
 sed lisp says: https://github.com/mb64/sel
 
-real	0m0.816s
-user	0m0.791s
+real	0m0.476s
+user	0m0.454s
 sys	0m0.021s
 ```
 
