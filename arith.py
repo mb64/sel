@@ -46,85 +46,71 @@ func num-to-str (str-reverse-concatl (car-args))
 
 ; (add-carry x y) == x + y + 1
 ; Also deals with if x and/or y is nil
-func add-carry (
-    (if (car-args)
-        (if (cadr-args)
-            (quote ( ; Both! hope I got this right
-                (quote (cons (cdar-args)
-                    ((if (caar-args) add-carry add)
-                        (cdaadr-args)
-                        (cdadadr-args)
-                    )
-                ))
-                (digit-add-carry (caar-args) (caadr-args))
-                (args)
+func add-carry
+(if (car-args)
+    (if (cadr-args)
+        ( ; Both! hope I got this right
+            (quote (cons (cdar-args)
+                ((if (caar-args) add-carry add)
+                    (cdaadr-args)
+                    (cdadadr-args)
+                )
             ))
-            (quote ; Yes x, but no y: add 1 to x
-                (add (car-args) (quote ("1")))
-            )
+            (digit-add-carry (caar-args) (caadr-args))
+            (args)
         )
-        (if (cadr-args)
-            (quote ; Yes y, but no x: add 1 to y
-                (add (cadr-args) (quote ("1")))
-            )
-            (quote ; Both are nil: just return ("1")
-                (quote ("1"))
-            )
-        )
+        ; Yes x, but no y: add 1 to x
+        (add (car-args) (quote ("1")))
     )
-    (car-args)
-    (cadr-args)
+    (if (cadr-args)
+        ; Yes y, but no x: add 1 to y
+        (add (cadr-args) (quote ("1")))
+        ; Both are nil: just return ("1")
+        (quote ("1"))
+    )
 )
 
 ; (add x y) == x + y
 ; Also deals with if x and/or y is nil
-func add (
-    (if (car-args)
-        (if (cadr-args)
-            (quote ( ; Both -- I sincerely hope to never type cdadadr again in my life
-                (quote (cons (cdar-args)
-                    ((if (caar-args) add-carry add)
-                        (cdaadr-args)
-                        (cdadadr-args)
-                    )
-                ))
-                (digit-add (caar-args) (caadr-args))
-                (args)
+func add
+(if (car-args)
+    (if (cadr-args)
+        ( ; Both -- I sincerely hope to never type cdadadr again in my life
+            (quote (cons (cdar-args)
+                ((if (caar-args) add-carry add)
+                    (cdaadr-args)
+                    (cdadadr-args)
+                )
             ))
-            (quote (car-args)) ; Yes x, but no y: return x
+            (digit-add (caar-args) (caadr-args))
+            (args)
         )
-        (if (cadr-args)
-            (quote (cadr-args)) ; Yes y, but no x: return y
-            () ; Both are nil: return nil
-        )
+        (car-args) ; Yes x, but no y: return x
     )
-    (car-args)
-    (cadr-args)
+    (if (cadr-args)
+        (cadr-args) ; Yes y, but no x: return y
+        () ; Both are nil: return nil
+    )
 )
 
-func dec (
-    (if (car-args)
-        (quote (
-            (quote
-                (cons (cdar-args)
-                    (
-                        (if (caar-args)
-                            (quote (car-args))
-                            (quote (
-                                (quote (if (eq? (car-args) (quote ("0"))) () (car-args)))
-                                (dec (car-args))
-                            ))
-                        )
-                        (cadr-args)
+func dec
+(if (car-args)
+    (
+        (quote
+            (cons
+                (cdar-args)
+                (if (caar-args)
+                    (cadr-args)
+                    ((quote (if (eq? (car-args) (quote ("0"))) () (car-args)))
+                        (dec (cadr-args))
                     )
                 )
             )
-            (digit-add (caar-args) "9")
-            (cdar-args)
-        ))
-        ()
+        )
+        (digit-add (caar-args) "9")
+        (cdar-args)
     )
-    (car-args)
+    ()
 )
 '''
 
