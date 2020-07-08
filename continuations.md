@@ -252,4 +252,4 @@ And a few extra `Cont`s that aren't used, but could be:
  - FP isn't all about lambdas and closures: just because you don't have
    functions doesn't mean you can't write functional code.
 
-I hope you learned something, or at least found it interesting :).
+I hope you learned something, or at least found it interesting. :)
