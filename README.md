@@ -77,6 +77,8 @@ is run with the tail as its arguments.
 Within a function, you can get the args using the `args` or `c[ad]+r-args`
 builtins.
 
+Sed Lisp also fully supports TCO.
+
 ### Builtin functions
 
 There are an infinite number of builtin functions:
@@ -139,6 +141,8 @@ user	1m46.753s
 sys	0m6.225s
 ```
 
+(The tail-recursive variant takes just 8.9 seconds for the same task.)
+
 ## The implementation
 
 It's MIT licensed, so you're free to use/modify/etc it. Not sure why you'd want
@@ -173,4 +177,5 @@ $ make input.sec
 $ sed -nE -f read-all.sed -f runner.sed input.sec
 ```
 
-See `notes.txt` for some design notes.
+See `notes.txt` for some design notes, and `continuations.md` for my explanation
+of how the continuations work.
