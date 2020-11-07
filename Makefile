@@ -1,7 +1,7 @@
-run: sel.sed test-prog.sel arith.sel
+run: sel.sed test-prog.sel
 	./sel.sed test-prog.sel
 
-dbg.txt: sel.sed test-prog.sel arith.sel
+dbg.txt: sel.sed test-prog.sel
 	timeout 0.5 sed --debug -E -f sel.sed test-prog.sel | sed -e 's/^COMMAND: */COMMAND: /' > dbg.txt
 
 sel.sed: parser.sed runner.sed
@@ -11,9 +11,6 @@ sel.sed: parser.sed runner.sed
 
 debug: dbg.txt
 	nvim -O dbg.txt runner.sed
-
-arith.sel: arith.py
-	python arith.py > arith.sel
 
 hs:
 	runhaskell sel.hs
