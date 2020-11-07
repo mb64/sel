@@ -122,7 +122,23 @@ However, it's not as memory-inefficient as that makes it seem: everything
 
 ### Arithmentic
 
-You can do arithmetic, too!  See and `fibonacci.sel` for an example.
+You can do arithmetic, too!  See `factorial.sel` and `fibonacci.sel` for
+examples.
+
+```shell
+$ ./sel.sed factorial.sel
+0! = 1
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+7! = 5040
+8! = 40320
+9! = 362880
+10! = 3628800
+```
 
 It boasts AFAIK the fastest sed implementation of recursive fibonacci ever
 written: (OK this used to be sarcastic but honestly it's gotten a lot better)

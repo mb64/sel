@@ -217,7 +217,7 @@ curry doCont :: [Cont] -> (AST -> IO AST)
 
 The idea of representing functions using datatypes is not a new trick:
 **defunctionalization** has been around for a while. If you haven't heard of
-defunctionalization before, of even if you have, [there was a great talk about
+defunctionalization before, or even if you have, [there was a great talk about
 it](http://www.pathsensitive.com/2019/07/the-best-refactoring-youve-never-heard.html)
 at Compose 2019.
 

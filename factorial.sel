@@ -1,0 +1,51 @@
+; vim:ft=lisp ts=2 sts=2 sw=2 expandtab
+
+; (list args...) := (args...)
+func list (args)
+
+val nil ()
+
+; (inc x) := x + 1
+func inc (add (car-args) "1")
+
+
+; (foreach f list) := nil (with side effects)
+func foreach (if (cadr-args)
+    (nil
+        ((car-args) (caadr-args))
+        (foreach (car-args) (cdadr-args)))
+    nil)
+
+
+; (upto n m) := (n n+1 n+2 ... m)
+func upto (if (eq? (car-args) (cadr-args))
+  (cdr-args)
+  (cons (car-args) (upto (inc (car-args)) (cadr-args))))
+
+
+; (mul-tail n m acc) := n * m + acc
+func mul-tail (if (eq? (car-args) "0")
+  (caddr-args)
+  (mul-tail (dec (car-args)) (cadr-args) (add (cadr-args) (caddr-args))))
+
+; (mul n m) := n * m
+func mul (mul-tail (car-args) (cadr-args) "0")
+
+
+; (fact-tail n acc) := n! * acc
+func fact-tail (if (eq? (car-args) "0")
+  (cadr-args)
+  (fact-tail (dec (car-args)) (mul (car-args) (cadr-args))))
+
+; (factorial n) := n!
+func factorial (if (eq? (car-args) "0")
+  "1"
+  (fact-tail (dec (car-args)) (car-args)))
+
+
+func print-factorial (print (str-concat
+  (car-args)
+  "! = "
+  (factorial (car-args))))
+
+val main (foreach print-factorial (upto "0" "10"))
