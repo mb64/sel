@@ -1,37 +1,26 @@
-%include arith.sel
-
-func list (args)
-
-; Numbers are little-endian lists of digits
-val n (list "0" "1") ; 10
-val one (list "1")
-val zero (list "0")
 
 ; (fib-tail n curr prev)
-func fib-tail (
-    (if (eq? (car-args) zero)
-        (quote (cadar-args))
-        (quote (fib-tail
-            (dec (caar-args))
-            (add (cadar-args) (caddar-args))
-            (cadar-args)
-        ))
+func fib-tail (if (eq? (car-args) "0")
+    (cadr-args)
+    (fib-tail
+        (dec (car-args))
+        (add (cadr-args) (caddr-args))
+        (cadr-args)
     )
-    (args)
 )
-func fibonacci (
-    (if (eq? (car-args) zero)
-        (quote zero)
-        (quote (fib-tail (dec (car-args)) one zero))
-    )
-    (car-args)
+
+func fibonacci (if (eq? (car-args) "0")
+    "0"
+    (fib-tail (dec (car-args)) "1" "0")
 )
+
+val n "10"
 
 val main (print (str-concat
     "(fibonacci "
-    (num-to-str n)
+    n
     ") is "
-    (num-to-str (fibonacci n))
+    (fibonacci n)
 ))
 
 ; vim:ft=lisp

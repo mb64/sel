@@ -94,7 +94,7 @@ s/\nSTART/&@/
 t find-builtins-loop
 :find-builtins-loop
 # ugh this regex for all the builtins is getting really long
-s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-(reverse-)?concatl?|digit-add(-carry)?|digit-lte\?|eq\?))(:.*)@(.*)$/\1@\5\6\nbuiltin \2/
+s/(.*\nITEM [0-9]+ L(quote|print|args|c[ad]+r|c[ad]+r-args|if|cons|str-(reverse-)?concatl?|add|dec|eq\?))(:.*)@(.*)$/\1@\4\5\nbuiltin \2/
 t find-builtins-loop
 s/@//
 s/^\n//

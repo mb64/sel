@@ -262,79 +262,106 @@ b eval
     b str-reverse-concat-loop
 }
 
-/^Bdigit-add(-carry)?\n/ {
-    /^Bdigit-add-carry\n/ {
-        # remember to carry
-        s/$/\ncarry/
-    }
-    s/^Bdigit-add(-carry)?\n//
+/^Bdec\n/ {
+    s/^Bdec\n//
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):/HEAD \2\n&/
+    # HEAD addr\n...
+    s/^HEAD ([0-9]+)(\n.*\nITEM \1 "([^\n]*)([^\n]))/\3_\4\2/
+    # numbe_r\n...
+    # TODO: try this in the hold space? might speed it up a little
+    # probably not tho
+    t decrement-loop
+    :decrement-loop
+    s/_9/8/ ; t done-decrement-2
+    s/_8/7/ ; t done-decrement-2
+    s/_7/6/ ; t done-decrement-2
+    s/_6/5/ ; t done-decrement-2
+    s/_5/4/ ; t done-decrement-2
+    s/_4/3/ ; t done-decrement-2
+    s/_3/2/ ; t done-decrement-2
+    s/_2/1/ ; t done-decrement-2
+    s/_1/0/ ; t done-decrement
+    s/([0-9])_0/_\19/
+    t decrement-loop
+    # dec 0 is 0
+    s/^_//
+    :done-decrement
+    # maybe leading 0s
+    s/^0*//
+    s/^\n/0\n/
+    # no leading 0s
+    :done-decrement-2
+    
+    # decremented\n...
 
-    # Prepend x tail
-    # relies on the fact that the digits are in 1x
-    t dummy-lbl-9
-    :dummy-lbl-9
-    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L1([0-9]):([0-9]+)\n/\2 \3\n&/
-    T error
-    # get tail.head
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L1([0-9]):)/\1\4\3/
-    T error
-    # if 1xy exists, return it
-    s/^([0-9][0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\1 L([0-9]+):0\n)/CURRENT \3\2/
-    t done-digit-add
-    # if not, try 1yx
-    s/^([0-9])([0-9])\nCURRENT [0-9]+(\n.*\nITEM 1\2\1 L([0-9]+):0\n)/CURRENT \4\3/
-    t done-digit-add
-    # if neither of those worked, they didn't use arith.sel
-    s/.*/Error: you shoulda used arith.sel/
-    p
-    q 1
-
-    :done-digit-add
-    /\ncarry$/ {
-        s/\ncarry$//
-        # increment it
-        # this relies on the specific layout of the numbers in memory
-        s/^CURRENT [0-9]+/&_/
-        t digit-inc-loop
-        :digit-inc-loop
-        s/\b_/1/ ; t next-cont
-        # ^^ this one shouldn't happen
-        s/8_/9/ ; t next-cont
-        s/7_/8/ ; t next-cont
-        s/6_/7/ ; t next-cont
-        s/5_/6/ ; t next-cont
-        s/4_/5/ ; t next-cont
-        s/3_/4/ ; t next-cont
-        s/2_/3/ ; t next-cont
-        s/1_/2/ ; t next-cont
-        s/0_/1/ ; t next-cont
-        s/9_/_0/
-        t digit-inc-loop
-        b digit-inc-loop
-    }
-    b next-cont
+    s/^([0-9]*)\n(.*\nHEAP\n)/\2NEW "\1\n/
+    b new
 }
 
-/^Bdigit-lte\?\n/ {
-    s/^Bdigit-lte\?\n//
-    # Prepend x tail
-    # relies on the fact that the digits are in 1x
-    t dummy-lbl-10
-    :dummy-lbl-10
-    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L1([0-9]):([0-9]+)\n/\2 \3\n&/
-    T error
-    # get tail.head
-    s/^([0-9]) ([0-9]+)(\n.*\nITEM \2 L1([0-9]):)/\1\4\3/
-    T error
-    # if 1xy exists, then x ≤ y
-    /^([0-9][0-9])\n.*\nITEM 1\1 / {
-        # Return 1 for true
-        s/^[0-9][0-9]\nCURRENT [0-9]+\n/CURRENT 1\n/
-        b next-cont
-    }
-    # otherwise, return 0 for false
-    s/^[0-9][0-9]\nCURRENT [0-9]+\n/CURRENT 0\n/
-    b next-cont
+/^Badd\n/ {
+    s/^Badd\n//
+    s/^CURRENT ([0-9]+)\n.*\nITEM \1 L([0-9]+):([0-9]+)\n/LINK \2 \3\n&/
+    # LINK head tail\n...
+    s/^LINK ([0-9]+)( .*\nITEM \1 "([^\n]*))/\3\nTAIL\2/
+    # first number\nTAIL tail\n...
+    s/([^\n]*)\nTAIL ([0-9]+)(\n.*\nITEM \2 L([0-9]+):)/\1\nSECOND \4\3/
+    # first number\nSECOND addr\n...
+    s/\nSECOND ([0-9]+)(\n.*\nITEM \1 "([^\n]*))/\n\3\2/
+    # first number\nsecond number\n...
+    # save it all in the hold space
+    h
+    s/\nCURRENT.*//
+    # first number\nsecond number
+
+    s/^/:/
+    :rearrage-loop
+    s/^(.*)([^:])\n(.*)(.)$/'\2\4\1\n\3/
+    t rearrage-loop
+    s/\n//
+    :rearrange-loop-2
+    s/^(.*)([^:])$/'\2\1/
+    t rearrange-loop-2
+    s/://
+
+    s/0//g
+    s/1/a/g
+    s/2/aa/g
+    s/3/aaa/g
+    s/4/aaaa/g
+    s/5/aaaaa/g
+    s/6/aaaaaa/g
+    s/7/aaaaaaa/g
+    s/8/aaaaaaaa/g
+    s/9/aaaaaaaaa/g
+
+    t carry-loop
+    :carry-loop
+    s/'aaaaaaaaaa/a'/g
+    t carry-loop
+
+    s/^a/'a/
+
+    s/'aaaaaaaaa/9/g
+    s/'aaaaaaaa/8/g
+    s/'aaaaaaa/7/g
+    s/'aaaaaa/6/g
+    s/'aaaaa/5/g
+    s/'aaaa/4/g
+    s/'aaa/3/g
+    s/'aa/2/g
+    s/'a/1/g
+    s/'/0/g
+
+    # pattern space: sum
+    # hold space: first number\nsecond number\n...
+
+    H
+    x
+    # pattern space: first number\nsecond number\n...\nsum
+
+    s/[^\n]*\n[^\n]*\n(.*\nHEAP\n)(.*)\n([^\n]*)$/\1NEW "\3\n\2/
+
+    b new
 }
 
 /^Beq\?\n/ {
