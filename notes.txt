@@ -61,10 +61,10 @@ builtins:
  [X] str-reverse-concatl
  [ ] str-uncons
  [ ] str-unpack
- [X] digit-add
- [X] digit-add-carry
- [ ] digit-mul
- [X] digit-lte?
+ [X] add
+ [X] dec
+ [ ] digit-mul (?)
+ [ ] lte?
  [ ] collect
 
 Plan

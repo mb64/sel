@@ -98,12 +98,8 @@ There are an infinite number of builtin functions:
  - `str-reverse-concat`: concatenates all of its arguments, which should be
     strings, in reverse order
  - `str-reverse-concatl`: concatenates a list of strings, in reverse order
- - `digit-add`: add two digits, giving a cons cell `(bool carry, digit sum)`
- - `digit-add-carry`: add two digits + 1, giving a cons cell `(bool carry, digit sum)`
- - `digit-lte?`: `(digit-lte? x y)` returns truthy if x ≤ y
-
-    Note that `digit-add`, `digit-add-carry`, and `digit-lte?` only work if you
-    `%include arith.sel` in your program
+ - `add`: add numbers (numbers are strings `[0-9]+`)
+ - `dec`: decrement a number
 
 ### Dynamic symbol lookup and scope
 
@@ -126,22 +122,37 @@ However, it's not as memory-inefficient as that makes it seem: everything
 
 ### Arithmentic
 
-You can do arithmetic, too!  See `arith.py` for an explanation of how it works,
-and `fibonacci.sel` for an example.
+You can do arithmetic, too!  See and `fibonacci.sel` for an example.
 
 It boasts AFAIK the fastest sed implementation of recursive fibonacci ever
-written:
+written: (OK this used to be sarcastic but honestly it's gotten a lot better)
 
 ```shell
-$ time ./sel.sed fibonacci.sel
+$ time ./sel.sed fibonacci.sel # Initial version
 (fibonacci 10) is 55
 
-real	1m53.091s
-user	1m46.753s
-sys	0m6.225s
+real	3m10.428s
+user	2m59.080s
+sys	0m11.140s
+$ time ./sel.sed fibonacci.sel # Improved version
+(fibonacci 10) is 55
+
+real	0m57.010s
+user	0m55.048s
+sys	0m1.915s
+$ time ./sel.sed fibonacci.sel # Latest and greatest
+(fibonacci 10) is 55
+
+real	0m6.738s
+user	0m6.675s
+sys	0m0.054s
 ```
 
-(The tail-recursive variant takes just 8.9 seconds for the same task.)
+(The tail-recursive variant takes just ~~8.9 seconds~~ 300 milliseconds for the
+same task.)
+
+*Note:* Earlier benchmarks said 6 minutes.  That changed to 3 minutes since I
+got a new computer.
 
 ## The implementation
 
@@ -159,9 +170,9 @@ sed lisp says: Check it out!
 sed lisp says: Now with more recursion
 sed lisp says: https://github.com/mb64/sel
 
-real	0m0.476s
-user	0m0.454s
-sys	0m0.021s
+real	0m0.204s
+user	0m0.193s
+sys	0m0.010s
 ```
 
 It's in two parts, the parser and the runner.  They're designed such that they

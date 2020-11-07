@@ -1,17 +1,11 @@
-%include arith.sel
-
-func list (args)
-
-; Numbers are little-endian lists of digits
-val n (list "0" "1") ; 10
-val one (quote ("1"))
-val zero (quote ("0"))
+; Numbers are represented as strings
+val n "10"
 
 func fibonacci
-(if (eq? (car-args) one)
-    one
-    (if (eq? (car-args) zero)
-        zero
+(if (eq? (car-args) "1")
+    "1"
+    (if (eq? (car-args) "0")
+        "0"
         (
             (quote (add (fibonacci (car-args)) (fibonacci (dec (car-args)))))
             (dec (car-args))
@@ -21,9 +15,9 @@ func fibonacci
 
 val main (print (str-concat
     "(fibonacci "
-    (num-to-str n)
+    n
     ") is "
-    (num-to-str (fibonacci n))
+    (fibonacci n)
 ))
 
 ; vim:ft=lisp
